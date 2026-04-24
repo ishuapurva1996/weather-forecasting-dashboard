@@ -1,0 +1,99 @@
+version: 2
+
+models:
+  - name: stg_weather_history
+    columns:
+      - name: weather_date
+        tests:
+          - not_null
+      - name: city
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['San Jose', 'Los Angeles']
+      - name: weather_code
+        tests:
+          - not_null
+      - name: temp_max
+        tests:
+          - not_null
+
+  - name: stg_weather_forecast
+    columns:
+      - name: weather_date
+        tests:
+          - not_null
+      - name: city
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['San Jose', 'Los Angeles']
+      - name: forecast_temp_max
+        tests:
+          - not_null
+
+  - name: fct_daily_weather
+    columns:
+      - name: weather_date
+        tests:
+          - not_null
+      - name: city
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['San Jose', 'Los Angeles']
+      - name: record_type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['history', 'forecast']
+
+  - name: fct_weather_rolling
+    columns:
+      - name: weather_date
+        tests:
+          - not_null
+      - name: city
+        tests:
+          - not_null
+
+  - name: fct_weather_category_daily
+    columns:
+      - name: weather_date
+        tests:
+          - not_null
+      - name: city
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['San Jose', 'Los Angeles']
+      - name: weather_code
+        tests:
+          - not_null
+
+  - name: dim_weather_code
+    columns:
+      - name: weather_code
+        tests:
+          - not_null
+          - unique
+      - name: weather_description
+        tests:
+          - not_null
+
+  - name: fct_forecast_accuracy
+    columns:
+      - name: forecast_made_on
+        tests:
+          - not_null
+      - name: forecast_for_date
+        tests:
+          - not_null
+      - name: city
+        tests:
+          - not_null

@@ -2,6 +2,7 @@ from airflow import DAG
 from airflow.models import Variable
 from airflow.decorators import task
 from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 from datetime import timedelta
 from datetime import datetime
@@ -142,7 +143,7 @@ with DAG(
     start_date = datetime(2026,3,1),
     catchup=False,
     tags=['ETL'],
-    schedule = '20 22 * * *'
+    schedule = '20 19 * * *'
 ) as dag:
     
     target_table = "RAW.Weather_ETL_multiple_cities"
@@ -162,8 +163,17 @@ with DAG(
     rec2 = transform_past_60_days_weather_city(extracted_raw_data_city2, city2_LATITUDE, city2_LONGITUDE, city2)
 
     rec = combine_rec_of_2_cities(rec1, rec2)
- 
-    load(rec, target_table)
+
+    load_task = load(rec, target_table)
+
+    trigger_forecast = TriggerDagRunOperator(
+        task_id='trigger_forecast_dag',
+        trigger_dag_id='forecast_model_temp_max',
+        wait_for_completion=False,
+        reset_dag_run=True,
+    )
+
+    load_task >> trigger_forecast
 
     
     

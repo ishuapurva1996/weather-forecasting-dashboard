@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: raw
+    database: USER_DB_BADGER
+    schema: RAW
+    description: Raw weather data loaded by Airflow ETL DAG
+    tables:
+      - name: weather_etl_multiple_cities
+        description: Historical weather from Open-Meteo, refreshed daily with last 60 days
+
+  - name: forecast
+    database: USER_DB_BADGER
+    schema: ANALYTICS
+    description: Snowflake ML forecast output, regenerated daily by Airflow forecast DAG
+    tables:
+      - name: weather_forecast_lab1
+        description: 7-day temp_max forecasts with 95% prediction intervals

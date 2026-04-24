@@ -2,6 +2,7 @@ from airflow import DAG
 from airflow.models import Variable
 from airflow.decorators import task
 from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 from datetime import timedelta
 from datetime import datetime
@@ -59,71 +60,27 @@ def predict(model_name, forecast_prediction_table):
 
         print(f'{model_name} generated prediction --> stored in {forecast_prediction_table}')
 
-@task
-def history_predict_union(history_table, forecast_table, union_table):
-        con = return_snowflake_conn()
-
-        try:
-            con.execute("BEGIN")
-            con.execute(f"""CREATE TABLE IF NOT EXISTS {union_table} (
-                
-                ds              DATE NOT NULL,
-                actual          FLOAT,
-                city            VARCHAR,
-                forecast        FLOAT,
-                lower_bound     FLOAT,
-                upper_bound     FLOAT);""")
-
-            con.execute(f"""DELETE FROM {union_table};""")
-
-            union_sql = f""" INSERT INTO {union_table} 
-                    (ds, actual, city, forecast, lower_bound, upper_bound)
-                    SELECT 
-                        date as ds,
-                        temp_max as actual,
-                        city as city,
-                        NULL as forecast,
-                        NULL as lower_bound,
-                        NULL as upper_bound
-                    FROM {history_table}
-
-                    UNION
-
-                    SELECT 
-                        ts as ds,
-                        NULL as actual,
-                        series as city,
-                        forecast,
-                        lower_bound,
-                        upper_bound
-                    FROM {forecast_table};"""
-        
-            con.execute(union_sql)
-            con.execute("COMMIT")
-            
-
-        except Exception as e:
-            con.execute("ROLLBACK;")
-            print(e)
-            raise e
-                    
-
-
-
-
 with DAG(
     dag_id = 'forecast_model_temp_max',
     start_date = datetime(2026,3,1),
     catchup=False,
     tags=['ETL'],
-    schedule = '20 23 * * *'
+    schedule=None,
 ) as dag:
-       
-       
+
+
        target_view = "RAW.weather_city_view"
        input_table = "RAW.weather_ETL_multiple_cities"
        model_name = "ANALYTICS.weather_temperature_lab1"
        forecast_prediction_table = "ANALYTICS.weather_forecast_lab1"
-       union_table = "ANALYTICS.union_forecast_history_lab1"
 
-       train_model(target_view, model_name, input_table) >> predict(model_name, forecast_prediction_table) >> history_predict_union(input_table, forecast_prediction_table, union_table)
+       predict_task = predict(model_name, forecast_prediction_table)
+
+       trigger_dbt = TriggerDagRunOperator(
+              task_id='trigger_dbt_pipeline',
+              trigger_dag_id='weather_dbt_pipeline',
+              wait_for_completion=False,
+              reset_dag_run=True,
+       )
+
+       train_model(target_view, model_name, input_table) >> predict_task >> trigger_dbt
