@@ -20,6 +20,43 @@ def return_snowflake_conn():
       return conn.cursor()
 
 
+def required_float(value, field_name):
+    if value in (None, ""):
+        raise ValueError(f"{field_name} is required and cannot be blank")
+    return float(value)
+
+
+def optional_float(value):
+    if value in (None, ""):
+        return None
+    return float(value)
+
+
+def row_from_record(record):
+    return (
+        required_float(record["latitude"], "latitude"),
+        required_float(record["longitude"], "longitude"),
+        record["date"],
+        optional_float(record.get("temp_max")),
+        optional_float(record.get("temp_min")),
+        optional_float(record.get("temp_mean")),
+        None if record.get("weather_code") in (None, "") else str(record["weather_code"]),
+        record["city"],
+    )
+
+
+REQUIRED_DAILY_FIELDS = (
+    "temperature_2m_max",
+    "temperature_2m_min",
+    "temperature_2m_mean",
+    "weather_code",
+)
+
+
+def has_complete_daily_weather(data, index):
+    return all(data[field][index] is not None for field in REQUIRED_DAILY_FIELDS)
+
+
 
 # extract function for city1
 @task
@@ -61,7 +98,12 @@ def transform_past_60_days_weather_city(extracted_raw_data, latitude, longitude,
             
         data = extracted_raw_data['daily']
         records = []
+        skipped = 0
         for i in range(len(data['time'])):
+            if not has_complete_daily_weather(data, i):
+                skipped += 1
+                continue
+
             records.append( {
             'latitude':latitude,
             'longitude': longitude,
@@ -72,6 +114,8 @@ def transform_past_60_days_weather_city(extracted_raw_data, latitude, longitude,
             'weather_code':data['weather_code'][i],
             'city': city
             })
+        if skipped:
+            print(f"Skipped {skipped} incomplete daily weather records for {city}")
         return records
 
 
@@ -112,21 +156,12 @@ def load(records, target_table):
 
       con.execute(f"""DELETE FROM {target_table}""")
 
-      for val in records:
-          latitude = val['latitude']
-          longitude = val['longitude']
-          date = val['date']
-          temp_max = val['temp_max']
-          temp_min = val['temp_min']
-          temp_mean = val['temp_mean']
-          weather_code = val['weather_code']
-          city = val['city']
-
-          sql = f"""
+      rows = [row_from_record(record) for record in records]
+      insert_sql = f"""
           INSERT INTO {target_table}
           (latitude, longitude, date, temp_max, temp_min, temp_mean, weather_code, city)
-          VALUES ('{latitude}', '{longitude}', '{date}', '{temp_max}', '{temp_min}', '{temp_mean}', '{weather_code}', '{city}');"""
-          con.execute(sql)
+          VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
+      con.executemany(insert_sql, rows)
       con.execute("COMMIT")
       print(f'loaded {len(records)} records in the {target_table}')
 
@@ -185,8 +220,6 @@ with DAG(
     
     
     
-
-
 
 
 
