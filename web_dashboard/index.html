@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast Live Dashboard</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <header class="dashboard-header">
+        <div>
+            <p class="eyebrow">DATA 226 Weather Pipeline</p>
+            <h1>Weather Forecast Live Dashboard</h1>
+            <p class="subtitle">San Jose and Los Angeles actuals, 7-day forecasts, accuracy, revisions, and conditions.</p>
+        </div>
+        <div class="header-actions">
+            <a class="preset-link" href="https://9106dc82.us2a.app.preset.io/superset/dashboard/8/?native_filters_key=dBFp1-5AII8" target="_blank" rel="noreferrer">Preset</a>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle color theme">Theme</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <section class="toolbar" aria-label="Dashboard controls">
+            <div class="control-group" role="group" aria-label="City filter">
+                <button class="segmented active" type="button" data-city="All">All cities</button>
+                <button class="segmented" type="button" data-city="San Jose">San Jose</button>
+                <button class="segmented" type="button" data-city="Los Angeles">Los Angeles</button>
+            </div>
+            <div class="refresh-stamp" id="refresh-stamp">Loading data...</div>
+        </section>
+
+        <section class="kpi-row" aria-label="Key metrics">
+            <article class="kpi-card">
+                <span class="kpi-label">Latest Forecast Max</span>
+                <strong class="kpi-value" id="kpi-forecast">--</strong>
+                <span class="kpi-detail" id="kpi-forecast-detail">--</span>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Latest Actual Max</span>
+                <strong class="kpi-value" id="kpi-actual">--</strong>
+                <span class="kpi-detail" id="kpi-actual-detail">--</span>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Mean Abs Error</span>
+                <strong class="kpi-value" id="kpi-mae">--</strong>
+                <span class="kpi-detail">Forecast vs actual</span>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Interval Hit Rate</span>
+                <strong class="kpi-value" id="kpi-hit-rate">--</strong>
+                <span class="kpi-detail">Actual within 95% PI</span>
+            </article>
+        </section>
+
+        <section class="section-grid hero-grid">
+            <article class="chart-card hero-card">
+                <div class="chart-heading">
+                    <div>
+                        <h2>Actuals and 7-Day Forecast</h2>
+                        <p>Daily max temperature with forecast confidence band.</p>
+                    </div>
+                </div>
+                <div id="chart-forecast" class="chart-container tall"></div>
+            </article>
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <div>
+                        <h2>City Comparison</h2>
+                        <p>Latest actual and forecast max temperature by city.</p>
+                    </div>
+                </div>
+                <div id="chart-city-comparison" class="chart-container"></div>
+            </article>
+        </section>
+
+        <section class="section-grid two-col">
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <div>
+                        <h2>Forecast Accuracy</h2>
+                        <p>Absolute error grouped by forecast horizon.</p>
+                    </div>
+                </div>
+                <div id="chart-accuracy" class="chart-container"></div>
+            </article>
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <div>
+                        <h2>Forecast Revisions</h2>
+                        <p>Snapshot history for predictions that changed over time.</p>
+                    </div>
+                </div>
+                <div id="chart-revisions" class="chart-container"></div>
+            </article>
+        </section>
+
+        <section class="section-grid two-col">
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <div>
+                        <h2>Weather Conditions</h2>
+                        <p>Observed weather category mix across the history window.</p>
+                    </div>
+                </div>
+                <div id="chart-conditions" class="chart-container"></div>
+            </article>
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <div>
+                        <h2>Severity Trend</h2>
+                        <p>Daily WMO severity score from the category mart.</p>
+                    </div>
+                </div>
+                <div id="chart-severity" class="chart-container"></div>
+            </article>
+        </section>
+
+        <section class="section-grid">
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <div>
+                        <h2>Rolling 7-Day Trends</h2>
+                        <p>Trailing min, mean, and max temperature trends.</p>
+                    </div>
+                </div>
+                <div id="chart-rolling" class="chart-container tall"></div>
+            </article>
+        </section>
+
+        <section class="empty-state" id="dashboard-error" hidden>
+            <h2>Dashboard data is unavailable</h2>
+            <p>Run <code>python web_dashboard/export_data.py</code>, then serve this folder over HTTP.</p>
+        </section>
+    </main>
+
+    <footer class="dashboard-footer">
+        <span>Open-Meteo -> Airflow -> Snowflake ML -> dbt -> GitHub Pages</span>
+    </footer>
+
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
