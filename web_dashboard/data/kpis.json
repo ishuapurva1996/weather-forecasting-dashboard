@@ -1,0 +1,23 @@
+{
+  "generated_at": "sample data",
+  "by_city": [
+    {
+      "city": "Los Angeles",
+      "latest_forecast_date": "2026-06-13",
+      "latest_forecast_temp_max": 78.4,
+      "latest_actual_date": "2026-06-10",
+      "latest_actual_temp_max": 76.9,
+      "mean_absolute_error": 1.78,
+      "interval_hit_rate_pct": 86.7
+    },
+    {
+      "city": "San Jose",
+      "latest_forecast_date": "2026-06-13",
+      "latest_forecast_temp_max": 82.5,
+      "latest_actual_date": "2026-06-10",
+      "latest_actual_temp_max": 79.8,
+      "mean_absolute_error": 2.06,
+      "interval_hit_rate_pct": 80.0
+    }
+  ]
+}

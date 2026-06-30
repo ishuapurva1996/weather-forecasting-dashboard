@@ -1,0 +1,8 @@
+[
+  {"forecast_made_on":"2026-06-07","forecast_for_date":"2026-06-11","city":"Los Angeles","predicted_temp_max":76.2,"predicted_lower":71.2,"predicted_upper":81.1,"valid_to":"2026-06-08"},
+  {"forecast_made_on":"2026-06-08","forecast_for_date":"2026-06-11","city":"Los Angeles","predicted_temp_max":76.8,"predicted_lower":72.1,"predicted_upper":81.4,"valid_to":"2026-06-09"},
+  {"forecast_made_on":"2026-06-09","forecast_for_date":"2026-06-11","city":"Los Angeles","predicted_temp_max":77.2,"predicted_lower":72.8,"predicted_upper":81.5,"valid_to":null},
+  {"forecast_made_on":"2026-06-07","forecast_for_date":"2026-06-11","city":"San Jose","predicted_temp_max":79.1,"predicted_lower":72.9,"predicted_upper":85.4,"valid_to":"2026-06-08"},
+  {"forecast_made_on":"2026-06-08","forecast_for_date":"2026-06-11","city":"San Jose","predicted_temp_max":79.8,"predicted_lower":73.5,"predicted_upper":86.1,"valid_to":"2026-06-09"},
+  {"forecast_made_on":"2026-06-09","forecast_for_date":"2026-06-11","city":"San Jose","predicted_temp_max":80.5,"predicted_lower":74.2,"predicted_upper":86.7,"valid_to":null}
+]

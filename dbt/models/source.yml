@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: raw
-    database: USER_DB_BADGER
+    database: "{{ env_var('DBT_DATABASE') }}"
     schema: RAW
     description: Raw weather data loaded by Airflow ETL DAG
     tables:
@@ -10,7 +10,7 @@ sources:
         description: Historical weather from Open-Meteo, refreshed daily with last 60 days
 
   - name: forecast
-    database: USER_DB_BADGER
+    database: "{{ env_var('DBT_DATABASE') }}"
     schema: ANALYTICS
     description: Snowflake ML forecast output, regenerated daily by Airflow forecast DAG
     tables:

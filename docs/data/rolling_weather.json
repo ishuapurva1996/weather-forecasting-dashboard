@@ -1,0 +1,12 @@
+[
+  {"city":"Los Angeles","weather_date":"2026-06-06","temp_max":74.2,"temp_min":60.5,"temp_mean":67.4,"temp_mean_7day_avg":67.4,"temp_max_7day":74.2,"temp_min_7day":60.5,"days_in_window":1},
+  {"city":"Los Angeles","weather_date":"2026-06-07","temp_max":73.8,"temp_min":59.9,"temp_mean":66.9,"temp_mean_7day_avg":67.15,"temp_max_7day":74.2,"temp_min_7day":59.9,"days_in_window":2},
+  {"city":"Los Angeles","weather_date":"2026-06-08","temp_max":75.1,"temp_min":61.4,"temp_mean":68.2,"temp_mean_7day_avg":67.5,"temp_max_7day":75.1,"temp_min_7day":59.9,"days_in_window":3},
+  {"city":"Los Angeles","weather_date":"2026-06-09","temp_max":76.4,"temp_min":62.1,"temp_mean":69.2,"temp_mean_7day_avg":67.93,"temp_max_7day":76.4,"temp_min_7day":59.9,"days_in_window":4},
+  {"city":"Los Angeles","weather_date":"2026-06-10","temp_max":76.9,"temp_min":62.6,"temp_mean":69.8,"temp_mean_7day_avg":68.3,"temp_max_7day":76.9,"temp_min_7day":59.9,"days_in_window":5},
+  {"city":"San Jose","weather_date":"2026-06-06","temp_max":77.3,"temp_min":55.8,"temp_mean":66.6,"temp_mean_7day_avg":66.6,"temp_max_7day":77.3,"temp_min_7day":55.8,"days_in_window":1},
+  {"city":"San Jose","weather_date":"2026-06-07","temp_max":78.6,"temp_min":56.2,"temp_mean":67.4,"temp_mean_7day_avg":67.0,"temp_max_7day":78.6,"temp_min_7day":55.8,"days_in_window":2},
+  {"city":"San Jose","weather_date":"2026-06-08","temp_max":80.2,"temp_min":57.4,"temp_mean":68.8,"temp_mean_7day_avg":67.6,"temp_max_7day":80.2,"temp_min_7day":55.8,"days_in_window":3},
+  {"city":"San Jose","weather_date":"2026-06-09","temp_max":81.1,"temp_min":58.0,"temp_mean":69.6,"temp_mean_7day_avg":68.1,"temp_max_7day":81.1,"temp_min_7day":55.8,"days_in_window":4},
+  {"city":"San Jose","weather_date":"2026-06-10","temp_max":79.8,"temp_min":57.5,"temp_mean":68.6,"temp_mean_7day_avg":68.2,"temp_max_7day":81.1,"temp_min_7day":55.8,"days_in_window":5}
+]
