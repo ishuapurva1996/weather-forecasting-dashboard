@@ -4,15 +4,21 @@ End-to-end ELT pipeline for daily weather forecasting of two U.S. cities (San Jo
 
 **Stack:** Open-Meteo API → Apache Airflow → Snowflake (`SNOWFLAKE.ML.FORECAST`) → dbt → Preset Cloud / GitHub Pages.
 
+**Dashboard URL:** [ishuapurva1996.github.io/weather-forecasting-dashboard](https://ishuapurva1996.github.io/weather-forecasting-dashboard/) *(available after GitHub Pages is enabled from `main` / `/docs`)*
+
 The pipeline ingests 60 days of historical daily weather, produces a 7-day forecast with a 95% prediction interval, transforms the result into analytics-grade marts (with dbt tests and an SCD-2 snapshot), and surfaces the output on Preset plus a public static Plotly dashboard.
+
+---
 
 ## Dashboard Preview
 
-![Weather Forecast Dashboard](./dashboard_preview.png)
+![Weather Forecast Dashboard](./dashboard_v3_preview.png)
+
+---
 
 ## Architecture
 
-![System architecture](docs/system_architecture.png)
+![System architecture](./docs/system_architecture.png)
 
 Three chained Airflow DAGs plus a dbt project:
 
@@ -49,6 +55,7 @@ DAG chaining uses `TriggerDagRunOperator` with `wait_for_completion=False`.
 │   └── data/                          # GitHub Pages deployment copy
 ├── sql/
 │   └── snowflake_setup.sql            # Snowflake database/schema/bootstrap grants
+├── dashboard_v3_preview.png           # Dashboard preview image for README
 ├── web_dashboard/                     # Static Plotly dashboard + Snowflake JSON exporter
 │   ├── export_data.py
 │   ├── index.html
@@ -183,10 +190,10 @@ GitHub Pages setup:
 3. Select branch `main` and folder `/docs`.
 4. Run the **Deploy Weather Dashboard** workflow manually once, or push a change under `web_dashboard/**`.
 
-Public dashboard URL placeholder:
+Target URL:
 
 ```text
-https://<github-user>.github.io/weather-forecasting-pipeline/
+https://ishuapurva1996.github.io/weather-forecasting-dashboard/
 ```
 
 The workflow exports fresh Snowflake mart data into `web_dashboard/data/`, copies the static dashboard into `docs/`, and commits only when dashboard assets or JSON data changed. Existing architecture files under `docs/` are preserved.
