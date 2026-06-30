@@ -1,8 +1,884 @@
 [
-  {"forecast_made_on":"2026-06-07","forecast_for_date":"2026-06-11","city":"Los Angeles","predicted_temp_max":76.2,"predicted_lower":71.2,"predicted_upper":81.1,"valid_to":"2026-06-08"},
-  {"forecast_made_on":"2026-06-08","forecast_for_date":"2026-06-11","city":"Los Angeles","predicted_temp_max":76.8,"predicted_lower":72.1,"predicted_upper":81.4,"valid_to":"2026-06-09"},
-  {"forecast_made_on":"2026-06-09","forecast_for_date":"2026-06-11","city":"Los Angeles","predicted_temp_max":77.2,"predicted_lower":72.8,"predicted_upper":81.5,"valid_to":null},
-  {"forecast_made_on":"2026-06-07","forecast_for_date":"2026-06-11","city":"San Jose","predicted_temp_max":79.1,"predicted_lower":72.9,"predicted_upper":85.4,"valid_to":"2026-06-08"},
-  {"forecast_made_on":"2026-06-08","forecast_for_date":"2026-06-11","city":"San Jose","predicted_temp_max":79.8,"predicted_lower":73.5,"predicted_upper":86.1,"valid_to":"2026-06-09"},
-  {"forecast_made_on":"2026-06-09","forecast_for_date":"2026-06-11","city":"San Jose","predicted_temp_max":80.5,"predicted_lower":74.2,"predicted_upper":86.7,"valid_to":null}
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-11",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.1028,
+    "predicted_lower": 26.27,
+    "predicted_upper": 34.4694,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-11",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.1044,
+    "predicted_lower": 26.5748,
+    "predicted_upper": 34.1258,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-12",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.3456,
+    "predicted_lower": 26.8774,
+    "predicted_upper": 34.2971,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-12",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.1372,
+    "predicted_lower": 23.927,
+    "predicted_upper": 36.1111,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-12",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.1406,
+    "predicted_lower": 24.4223,
+    "predicted_upper": 35.6437,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-13",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.3931,
+    "predicted_lower": 24.7734,
+    "predicted_upper": 35.7989,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-13",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.1717,
+    "predicted_lower": 22.4883,
+    "predicted_upper": 37.1486,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-13",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.1767,
+    "predicted_lower": 23.1038,
+    "predicted_upper": 36.6062,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-13",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.7542,
+    "predicted_lower": 27.3438,
+    "predicted_upper": 34.6397,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-14",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.4406,
+    "predicted_lower": 23.4877,
+    "predicted_upper": 36.7539,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-14",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.2062,
+    "predicted_lower": 21.4967,
+    "predicted_upper": 39.5104,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-14",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.2129,
+    "predicted_lower": 22.1973,
+    "predicted_upper": 38.7904,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-14",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.8119,
+    "predicted_lower": 25.2856,
+    "predicted_upper": 36.1265,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.2491,
+    "predicted_lower": 21.5087,
+    "predicted_upper": 38.9107,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.4881,
+    "predicted_lower": 22.6065,
+    "predicted_upper": 38.9072,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.2407,
+    "predicted_lower": 20.7418,
+    "predicted_upper": 39.6318,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.8696,
+    "predicted_lower": 24.0312,
+    "predicted_upper": 37.0749,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 26.2038,
+    "predicted_lower": 24.0431,
+    "predicted_upper": 28.3645,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.5355,
+    "predicted_lower": 21.9393,
+    "predicted_upper": 39.0331,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.2852,
+    "predicted_lower": 21.506,
+    "predicted_upper": 39.0152,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.2752,
+    "predicted_lower": 20.7291,
+    "predicted_upper": 39.7305,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.9273,
+    "predicted_lower": 23.1745,
+    "predicted_upper": 39.1999,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 25.306,
+    "predicted_lower": 23.1453,
+    "predicted_upper": 27.4668,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.3214,
+    "predicted_lower": 20.1387,
+    "predicted_upper": 40.842,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.3097,
+    "predicted_lower": 19.2319,
+    "predicted_upper": 41.7033,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.583,
+    "predicted_lower": 21.9437,
+    "predicted_upper": 39.1382,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.985,
+    "predicted_lower": 22.5286,
+    "predicted_upper": 39.332,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 25.4125,
+    "predicted_lower": 23.2518,
+    "predicted_upper": 27.5732,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 28.4852,
+    "predicted_lower": 26.4294,
+    "predicted_upper": 30.5457,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 30.6305,
+    "predicted_lower": 20.6046,
+    "predicted_upper": 40.9392,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 31.0427,
+    "predicted_lower": 22.5408,
+    "predicted_upper": 39.4398,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 27.8398,
+    "predicted_lower": 25.6791,
+    "predicted_upper": 30.0005,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 32.2641,
+    "predicted_lower": 30.1874,
+    "predicted_upper": 34.3386,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 26.0478,
+    "predicted_lower": 25.4651,
+    "predicted_upper": 26.6306,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-19",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 31.1004,
+    "predicted_lower": 21.2299,
+    "predicted_upper": 41.2174,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-19",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 28.0813,
+    "predicted_lower": 25.9206,
+    "predicted_upper": 30.2421,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-19",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 32.5442,
+    "predicted_lower": 30.4544,
+    "predicted_upper": 34.6272,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-19",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 26.1854,
+    "predicted_lower": 25.5364,
+    "predicted_upper": 26.8343,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-20",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 26.8779,
+    "predicted_lower": 24.7172,
+    "predicted_upper": 29.0386,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-20",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 29.8433,
+    "predicted_lower": 27.7443,
+    "predicted_upper": 31.9463,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-20",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 25.9259,
+    "predicted_lower": 25.226,
+    "predicted_upper": 26.6258,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-21",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 26.2848,
+    "predicted_lower": 24.1241,
+    "predicted_upper": 28.4456,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-21",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 27.8238,
+    "predicted_lower": 25.7177,
+    "predicted_upper": 29.9272,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-21",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 25.9294,
+    "predicted_lower": 25.1863,
+    "predicted_upper": 26.6725,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-22",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 27.8635,
+    "predicted_lower": 25.7566,
+    "predicted_upper": 29.967,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-22",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 26.0602,
+    "predicted_lower": 25.2788,
+    "predicted_upper": 26.8415,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-23",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 26.468,
+    "predicted_lower": 24.3472,
+    "predicted_upper": 28.5879,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-23",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 25.2507,
+    "predicted_lower": 24.4347,
+    "predicted_upper": 26.0667,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-24",
+    "city": "\"Los Angeles\"",
+    "predicted_temp_max": 25.2361,
+    "predicted_lower": 24.3879,
+    "predicted_upper": 26.0842,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-11",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 26.9322,
+    "predicted_lower": 26.8431,
+    "predicted_upper": 27.0336,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-11",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 25.937,
+    "predicted_lower": 25.937,
+    "predicted_upper": 25.937,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-12",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.5922,
+    "predicted_lower": 23.4954,
+    "predicted_upper": 42.2368,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-12",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 25.9631,
+    "predicted_lower": 25.8222,
+    "predicted_upper": 26.0988,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-12",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 24.801,
+    "predicted_lower": 24.801,
+    "predicted_upper": 24.801,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-13",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 23.7239,
+    "predicted_lower": 23.7239,
+    "predicted_upper": 23.7239,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-13",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 33.7891,
+    "predicted_lower": 22.2503,
+    "predicted_upper": 45.0666,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-13",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 24.793,
+    "predicted_lower": 24.6194,
+    "predicted_upper": 24.9492,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-13",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.231,
+    "predicted_lower": 25.9193,
+    "predicted_upper": 38.5428,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-14",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.0711,
+    "predicted_lower": 19.0076,
+    "predicted_upper": 44.3514,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-14",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 25.6521,
+    "predicted_lower": 25.6521,
+    "predicted_upper": 25.6521,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-14",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 26.9927,
+    "predicted_lower": 26.7968,
+    "predicted_upper": 27.2005,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-14",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.4215,
+    "predicted_lower": 23.9058,
+    "predicted_upper": 40.9371,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.0957,
+    "predicted_lower": 17.9681,
+    "predicted_upper": 46.704,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 22.7602,
+    "predicted_lower": 22.7602,
+    "predicted_upper": 22.7602,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 23.7435,
+    "predicted_lower": 23.5322,
+    "predicted_upper": 23.9519,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 31.3294,
+    "predicted_lower": 21.0815,
+    "predicted_upper": 41.5774,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-15",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 25.7959,
+    "predicted_lower": 21.7205,
+    "predicted_upper": 29.588,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.2367,
+    "predicted_lower": 17.2994,
+    "predicted_upper": 46.8874,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 21.6652,
+    "predicted_lower": 21.6652,
+    "predicted_upper": 21.6652,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 22.6124,
+    "predicted_lower": 22.3969,
+    "predicted_upper": 22.816,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 30.834,
+    "predicted_lower": 19.111,
+    "predicted_upper": 42.557,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-16",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 24.0196,
+    "predicted_lower": 20.4018,
+    "predicted_upper": 27.7001,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 30.7237,
+    "predicted_lower": 30.4731,
+    "predicted_upper": 30.971,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 29.796,
+    "predicted_lower": 29.796,
+    "predicted_upper": 29.796,
+    "valid_to": "2026-06-12"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.7215,
+    "predicted_lower": 17.6908,
+    "predicted_upper": 47.3417,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.8156,
+    "predicted_lower": 19.7858,
+    "predicted_upper": 45.8454,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 29.2224,
+    "predicted_lower": 25.4932,
+    "predicted_upper": 32.8545,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-17",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 27.341,
+    "predicted_lower": 26.9717,
+    "predicted_upper": 27.7102,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-12",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 33.4184,
+    "predicted_lower": 16.7302,
+    "predicted_upper": 49.919,
+    "valid_to": "2026-06-13"
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 34.101,
+    "predicted_lower": 19.8856,
+    "predicted_upper": 48.3164,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 32.8271,
+    "predicted_lower": 29.4214,
+    "predicted_upper": 36.5849,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 26.7279,
+    "predicted_lower": 26.3586,
+    "predicted_upper": 27.0971,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-18",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 29.1685,
+    "predicted_lower": 27.7821,
+    "predicted_upper": 30.5485,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-13",
+    "forecast_for_date": "2026-06-19",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 34.2601,
+    "predicted_lower": 18.9518,
+    "predicted_upper": 49.5685,
+    "valid_to": "2026-06-15"
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-19",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 33.067,
+    "predicted_lower": 29.4558,
+    "predicted_upper": 37.2471,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-19",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 26.7279,
+    "predicted_lower": 26.3586,
+    "predicted_upper": 27.0971,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-19",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 28.6179,
+    "predicted_lower": 27.2419,
+    "predicted_upper": 29.9953,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-20",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 28.5867,
+    "predicted_lower": 24.5603,
+    "predicted_upper": 32.1934,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-20",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 26.7279,
+    "predicted_lower": 26.3586,
+    "predicted_upper": 27.0971,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-20",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 26.4564,
+    "predicted_lower": 25.0779,
+    "predicted_upper": 27.8328,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-15",
+    "forecast_for_date": "2026-06-21",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 27.9837,
+    "predicted_lower": 24.4942,
+    "predicted_upper": 31.8638,
+    "valid_to": "2026-06-17"
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-21",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 26.7279,
+    "predicted_lower": 26.3586,
+    "predicted_upper": 27.0971,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-21",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 27.8332,
+    "predicted_lower": 26.4621,
+    "predicted_upper": 29.2124,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-22",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 24.4778,
+    "predicted_lower": 24.1085,
+    "predicted_upper": 24.847,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-22",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 28.5758,
+    "predicted_lower": 27.2,
+    "predicted_upper": 29.9646,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-17",
+    "forecast_for_date": "2026-06-23",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 24.4778,
+    "predicted_lower": 24.1085,
+    "predicted_upper": 24.847,
+    "valid_to": "2026-06-18"
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-23",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 27.0184,
+    "predicted_lower": 25.6331,
+    "predicted_upper": 28.3942,
+    "valid_to": null
+  },
+  {
+    "forecast_made_on": "2026-06-18",
+    "forecast_for_date": "2026-06-24",
+    "city": "\"San Jose\"",
+    "predicted_temp_max": 26.4926,
+    "predicted_lower": 25.1195,
+    "predicted_upper": 27.8746,
+    "valid_to": null
+  }
 ]
