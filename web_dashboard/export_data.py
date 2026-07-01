@@ -108,15 +108,24 @@ def serialize(value):
     return value
 
 
+def normalize_city(value):
+    if isinstance(value, str):
+        return value.strip().strip('"').strip("'")
+    return value
+
+
 def query_to_records(conn, sql):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
         columns = [desc[0].lower() for desc in cursor.description]
-        return [
-            {column: serialize(value) for column, value in zip(columns, row)}
-            for row in cursor.fetchall()
-        ]
+        records = []
+        for row in cursor.fetchall():
+            record = {column: serialize(value) for column, value in zip(columns, row)}
+            if "city" in record:
+                record["city"] = normalize_city(record["city"])
+            records.append(record)
+        return records
     finally:
         cursor.close()
 

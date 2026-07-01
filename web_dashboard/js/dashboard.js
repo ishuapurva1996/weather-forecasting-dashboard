@@ -109,11 +109,15 @@ function daysBetween(later, earlier) {
 }
 
 function rowsFor(rows, city) {
-    return (rows || []).filter((row) => row.city === city);
+    return (rows || []).filter((row) => normalizeCity(row.city) === city);
 }
 
 function sortedByDate(rows, key) {
     return [...rows].sort((a, b) => String(a[key]).localeCompare(String(b[key])));
+}
+
+function normalizeCity(value) {
+    return String(value || "").trim().replace(/^["']|["']$/g, "");
 }
 
 function average(values) {
