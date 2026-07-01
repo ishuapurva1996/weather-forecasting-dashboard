@@ -9,36 +9,65 @@ const FILES = {
     rolling: "data/rolling_weather.json",
 };
 
-const COLORS = {
-    actual: "#277f83",
-    forecast: "#c9782b",
-    lowerBand: "rgba(201, 120, 43, 0.16)",
-    upperBand: "rgba(201, 120, 43, 0.28)",
-    sanJose: "#277f83",
-    losAngeles: "#b75265",
-    blue: "#366ea7",
-    green: "#3a7f54",
-    amber: "#c9782b",
-    rose: "#b75265",
+const CITY_LABELS = {
+    "Los Angeles": "Los Angeles",
+    "San Jose": "San Jose",
 };
+
+const CITY_SHORT = {
+    "Los Angeles": "LA",
+    "San Jose": "SJ",
+};
+
+const COLORS = {
+    sanJose: "#6ed3b0",
+    losAngeles: "#ffbf4d",
+    sanJoseForecast: "#4b8990",
+    losAngelesForecast: "#57c7df",
+    error: "#2aa8bd",
+    clear: "#4c568b",
+    cloudy: "#2aa8bd",
+    fog: "#ff7a45",
+    rain: "#6a6a6a",
+    drizzle: "#5ac887",
+    fallback: "#8a8f98",
+};
+
+const CATEGORY_COLORS = {
+    clear: COLORS.clear,
+    clouds: COLORS.cloudy,
+    cloudy: COLORS.cloudy,
+    fog: COLORS.fog,
+    rain: COLORS.rain,
+    drizzle: COLORS.drizzle,
+};
+
+const CHART_IDS = [
+    "spark-la-forecast",
+    "spark-sj-forecast",
+    "spark-la-error",
+    "spark-sj-error",
+    "chart-revisions-sj",
+    "chart-revisions-la",
+    "chart-conditions-sj",
+    "chart-conditions-la",
+    "chart-categories-sj",
+    "chart-categories-la",
+    "chart-rolling-min",
+    "chart-rolling-mean",
+    "chart-rolling-max",
+    "chart-history-forecast",
+];
 
 const PLOT_CONFIG = {
     responsive: true,
     displayModeBar: false,
 };
 
-const CHART_IDS = [
-    "chart-forecast",
-    "chart-city-comparison",
-    "chart-accuracy",
-    "chart-revisions",
-    "chart-conditions",
-    "chart-severity",
-    "chart-rolling",
-];
+const MAX_STALE_DAYS = 3;
 
 let DATA = {};
-let selectedCity = "All";
+let selectedCity = "Los Angeles";
 
 function cssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -48,21 +77,22 @@ function plotTheme() {
     return {
         paper_bgcolor: "rgba(0,0,0,0)",
         plot_bgcolor: "rgba(0,0,0,0)",
-        font: { color: cssVar("--text"), family: "IBM Plex Sans, sans-serif" },
+        font: { color: cssVar("--text"), family: "IBM Plex Sans, sans-serif", size: 12 },
         xaxis: { gridcolor: cssVar("--grid"), zerolinecolor: cssVar("--grid") },
         yaxis: { gridcolor: cssVar("--grid"), zerolinecolor: cssVar("--grid") },
-        margin: { l: 54, r: 24, t: 58, b: 54 },
+        margin: { l: 48, r: 18, t: 32, b: 44 },
     };
 }
 
 function formatTemp(value) {
     if (value === null || value === undefined || Number.isNaN(Number(value))) return "--";
-    return `${Number(value).toFixed(1)}F`;
+    return `${Number(value).toFixed(2)}`;
 }
 
-function formatPct(value) {
-    if (value === null || value === undefined || Number.isNaN(Number(value))) return "--";
-    return `${Number(value).toFixed(0)}%`;
+function parseDate(value) {
+    if (!value || value === "sample data") return null;
+    const parsed = new Date(value.includes("T") ? value : `${value}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function dateLabel(value) {
@@ -71,17 +101,19 @@ function dateLabel(value) {
     return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-function cityFiltered(rows, city = selectedCity) {
-    if (!Array.isArray(rows)) return [];
-    if (city === "All") return rows;
-    return rows.filter((row) => row.city === city);
+function daysBetween(later, earlier) {
+    const laterCopy = new Date(later);
+    const earlierCopy = new Date(earlier);
+    const msPerDay = 24 * 60 * 60 * 1000;
+    return Math.floor((laterCopy.setHours(0, 0, 0, 0) - earlierCopy.setHours(0, 0, 0, 0)) / msPerDay);
 }
 
-function latestByDate(rows, dateKey) {
-    return [...rows]
-        .filter((row) => row[dateKey])
-        .sort((a, b) => String(a[dateKey]).localeCompare(String(b[dateKey])))
-        .at(-1);
+function rowsFor(rows, city) {
+    return (rows || []).filter((row) => row.city === city);
+}
+
+function sortedByDate(rows, key) {
+    return [...rows].sort((a, b) => String(a[key]).localeCompare(String(b[key])));
 }
 
 function average(values) {
@@ -90,24 +122,26 @@ function average(values) {
     return clean.reduce((sum, value) => sum + Number(value), 0) / clean.length;
 }
 
-function summarizeKpis() {
-    const kpiRows = selectedCity === "All" ? DATA.kpis?.by_city || [] : (DATA.kpis?.by_city || []).filter((row) => row.city === selectedCity);
-    const latestForecast = average(kpiRows.map((row) => row.latest_forecast_temp_max));
-    const latestActual = average(kpiRows.map((row) => row.latest_actual_temp_max));
-    const mae = average(kpiRows.map((row) => row.mean_absolute_error));
-    const hitRate = average(kpiRows.map((row) => row.interval_hit_rate_pct));
-    const detail = selectedCity === "All" ? "Average across cities" : selectedCity;
-
-    document.getElementById("kpi-forecast").textContent = formatTemp(latestForecast);
-    document.getElementById("kpi-forecast-detail").textContent = detail;
-    document.getElementById("kpi-actual").textContent = formatTemp(latestActual);
-    document.getElementById("kpi-actual-detail").textContent = detail;
-    document.getElementById("kpi-mae").textContent = formatTemp(mae);
-    document.getElementById("kpi-hit-rate").textContent = formatPct(hitRate);
-    document.getElementById("refresh-stamp").textContent = `Data refreshed: ${DATA.kpis?.generated_at || "sample data"}`;
+function cityColor(city, forecast = false) {
+    if (city === "San Jose") return forecast ? COLORS.sanJoseForecast : COLORS.sanJose;
+    return forecast ? COLORS.losAngelesForecast : COLORS.losAngeles;
 }
 
-function baseLayout(height = 390) {
+function categoryKey(value) {
+    return String(value || "uncategorized").toLowerCase();
+}
+
+function categoryLabel(value) {
+    const key = categoryKey(value);
+    if (key === "clouds") return "cloudy";
+    return key;
+}
+
+function categoryColor(value) {
+    return CATEGORY_COLORS[categoryKey(value)] || CATEGORY_COLORS[categoryLabel(value)] || COLORS.fallback;
+}
+
+function baseLayout(height = 330) {
     return {
         ...plotTheme(),
         height,
@@ -116,231 +150,258 @@ function baseLayout(height = 390) {
             orientation: "h",
             y: 1.16,
             x: 0,
-            font: { color: cssVar("--text") },
+            font: { color: cssVar("--muted"), size: 11 },
         },
     };
 }
 
-function renderForecast() {
-    const rows = cityFiltered(DATA.daily);
-    const cities = selectedCity === "All" ? ["San Jose", "Los Angeles"] : [selectedCity];
-    const traces = [];
+function sparkLayout(color) {
+    return {
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        height: 82,
+        margin: { l: 0, r: 0, t: 6, b: 0 },
+        xaxis: { visible: false },
+        yaxis: { visible: false },
+        showlegend: false,
+        hovermode: false,
+        shapes: [],
+        colorway: [color],
+    };
+}
 
-    for (const city of cities) {
-        const cityRows = rows.filter((row) => row.city === city).sort((a, b) => String(a.weather_date).localeCompare(String(b.weather_date)));
-        const history = cityRows.filter((row) => row.record_type === "history");
-        const forecast = cityRows.filter((row) => row.record_type === "forecast");
-        const color = city === "San Jose" ? COLORS.sanJose : COLORS.losAngeles;
+function renderFreshness() {
+    document.getElementById("refresh-stamp").textContent = `Data refreshed: ${DATA.kpis?.generated_at || "sample data"}`;
 
-        traces.push({
-            type: "scatter",
-            mode: "lines",
-            name: `${city} actual`,
-            x: history.map((row) => row.weather_date),
-            y: history.map((row) => row.actual_temp_max),
-            line: { color, width: 3 },
-            hovertemplate: "%{y:.1f}F<extra></extra>",
-        });
+    const banner = document.getElementById("freshness-banner");
+    const generatedAt = DATA.kpis?.generated_at;
+    const generatedDate = parseDate(generatedAt);
+    const actualDates = (DATA.kpis?.by_city || [])
+        .map((row) => parseDate(row.latest_actual_date))
+        .filter(Boolean)
+        .sort((a, b) => a - b);
+    const actualDate = actualDates.at(-1);
 
-        traces.push({
-            type: "scatter",
-            mode: "lines+markers",
-            name: `${city} forecast`,
-            x: forecast.map((row) => row.weather_date),
-            y: forecast.map((row) => row.forecast_temp_max),
-            line: { color: COLORS.forecast, width: 3, dash: city === "San Jose" ? "solid" : "dot" },
-            marker: { size: 7 },
-            hovertemplate: "%{y:.1f}F<extra></extra>",
-        });
+    banner.classList.remove("freshness-ok", "freshness-warning");
 
-        if (selectedCity !== "All" && forecast.length) {
-            traces.push({
-                type: "scatter",
-                mode: "lines",
-                name: "Upper bound",
-                x: forecast.map((row) => row.weather_date),
-                y: forecast.map((row) => row.forecast_upper_bound),
-                line: { color: "rgba(201, 120, 43, 0)", width: 0 },
-                hoverinfo: "skip",
-                showlegend: false,
-            });
-            traces.push({
-                type: "scatter",
-                mode: "lines",
-                name: "95% interval",
-                x: forecast.map((row) => row.weather_date),
-                y: forecast.map((row) => row.forecast_lower_bound),
-                fill: "tonexty",
-                fillcolor: COLORS.upperBand,
-                line: { color: "rgba(201, 120, 43, 0)", width: 0 },
-                hoverinfo: "skip",
-            });
-        }
+    if (!generatedDate || generatedAt === "sample data") {
+        banner.textContent = "Sample data is loaded. Run the dashboard export workflow with Snowflake secrets before using this as the real live dashboard.";
+        banner.classList.add("freshness-warning");
+        banner.hidden = false;
+        return;
     }
 
-    Plotly.react("chart-forecast", traces, {
-        ...baseLayout(500),
-        yaxis: { ...plotTheme().yaxis, title: "Temperature (F)" },
-    }, PLOT_CONFIG);
+    if (!actualDate) {
+        banner.textContent = "Data was exported from Snowflake, but no latest actual weather date was found in the KPI file.";
+        banner.classList.add("freshness-warning");
+        banner.hidden = false;
+        return;
+    }
+
+    const staleDays = daysBetween(new Date(), actualDate);
+    if (staleDays > MAX_STALE_DAYS) {
+        banner.textContent = `Data was exported, but latest actual weather is ${dateLabel(actualDate.toISOString().slice(0, 10))}. Refresh the Airflow pipeline and deploy workflow.`;
+        banner.classList.add("freshness-warning");
+        banner.hidden = false;
+        return;
+    }
+
+    banner.textContent = `Live Snowflake export is current. Latest actual weather: ${dateLabel(actualDate.toISOString().slice(0, 10))}.`;
+    banner.classList.add("freshness-ok");
+    banner.hidden = false;
 }
 
-function renderCityComparison() {
-    const cityRows = DATA.kpis?.by_city || [];
-    const cities = cityRows.map((row) => row.city);
-    const actual = cityRows.map((row) => row.latest_actual_temp_max);
-    const forecast = cityRows.map((row) => row.latest_forecast_temp_max);
-
-    Plotly.react("chart-city-comparison", [
-        { type: "bar", name: "Latest actual", x: cities, y: actual, marker: { color: COLORS.actual }, text: actual.map(formatTemp), textposition: "outside" },
-        { type: "bar", name: "Latest forecast", x: cities, y: forecast, marker: { color: COLORS.forecast }, text: forecast.map(formatTemp), textposition: "outside" },
-    ], {
-        ...baseLayout(390),
-        barmode: "group",
-        hovermode: "closest",
-        yaxis: { ...plotTheme().yaxis, title: "Temperature (F)" },
-    }, PLOT_CONFIG);
+function forecastRows(city) {
+    return sortedByDate(rowsFor(DATA.daily, city).filter((row) => row.record_type === "forecast"), "weather_date");
 }
 
-function renderAccuracy() {
-    const rows = cityFiltered(DATA.accuracy);
-    const horizons = [...new Set(rows.map((row) => row.days_ahead))].sort((a, b) => a - b);
-    const values = horizons.map((horizon) => average(rows.filter((row) => row.days_ahead === horizon).map((row) => row.absolute_error)));
-
-    Plotly.react("chart-accuracy", [{
-        type: "bar",
-        x: horizons.map((horizon) => `${horizon} day`),
-        y: values,
-        marker: { color: values, colorscale: [[0, COLORS.green], [0.6, COLORS.amber], [1, COLORS.rose]], showscale: false },
-        text: values.map(formatTemp),
-        textposition: "outside",
-        hovertemplate: "MAE %{y:.2f}F<extra></extra>",
-    }], {
-        ...baseLayout(390),
-        hovermode: "closest",
-        yaxis: { ...plotTheme().yaxis, title: "Mean absolute error (F)" },
-    }, PLOT_CONFIG);
+function historyRows(city) {
+    return sortedByDate(rowsFor(DATA.daily, city).filter((row) => row.record_type === "history"), "weather_date");
 }
 
-function renderRevisions() {
-    const rows = cityFiltered(DATA.revisions).sort((a, b) => String(a.forecast_made_on).localeCompare(String(b.forecast_made_on)));
-    const groups = new Map();
+function accuracyRows(city) {
+    return sortedByDate(rowsFor(DATA.accuracy, city), "forecast_for_date");
+}
+
+function renderSparkline(id, rows, xKey, yKey, color) {
+    Plotly.react(id, [{
+        type: "scatter",
+        mode: "lines",
+        x: rows.map((row) => row[xKey]),
+        y: rows.map((row) => row[yKey]),
+        line: { color, width: 2 },
+        fill: "tozeroy",
+        fillcolor: `${color}33`,
+        hoverinfo: "skip",
+    }], sparkLayout(color), PLOT_CONFIG);
+}
+
+function renderKpis() {
+    const laForecastRows = forecastRows("Los Angeles");
+    const sjForecastRows = forecastRows("San Jose");
+    const laAccuracyRows = accuracyRows("Los Angeles");
+    const sjAccuracyRows = accuracyRows("San Jose");
+
+    document.getElementById("kpi-la-forecast").textContent = formatTemp(average(laForecastRows.map((row) => row.forecast_temp_max)));
+    document.getElementById("kpi-sj-forecast").textContent = formatTemp(average(sjForecastRows.map((row) => row.forecast_temp_max)));
+    document.getElementById("kpi-la-error").textContent = formatTemp(average(laAccuracyRows.map((row) => row.absolute_error)));
+    document.getElementById("kpi-sj-error").textContent = formatTemp(average(sjAccuracyRows.map((row) => row.absolute_error)));
+
+    renderSparkline("spark-la-forecast", laForecastRows, "weather_date", "forecast_temp_max", "#ff8a54");
+    renderSparkline("spark-sj-forecast", sjForecastRows, "weather_date", "forecast_temp_max", COLORS.sanJose);
+    renderSparkline("spark-la-error", laAccuracyRows, "forecast_for_date", "absolute_error", COLORS.error);
+    renderSparkline("spark-sj-error", sjAccuracyRows, "forecast_for_date", "absolute_error", COLORS.error);
+}
+
+function renderRevisions(city, elementId) {
+    const rows = sortedByDate(rowsFor(DATA.revisions, city), "forecast_for_date");
+    const revisions = new Map();
+
     for (const row of rows) {
-        const key = `${row.city} -> ${dateLabel(row.forecast_for_date)}`;
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key).push(row);
+        const key = row.forecast_made_on || "unknown";
+        if (!revisions.has(key)) revisions.set(key, []);
+        revisions.get(key).push(row);
     }
 
-    const traces = [...groups.entries()].slice(0, 8).map(([key, group], index) => ({
+    const palette = [COLORS.sanJose, COLORS.losAngeles, COLORS.error, "#ef6f79", "#b9a44c", "#59768a"];
+    const traces = [...revisions.entries()].map(([madeOn, group], index) => ({
         type: "scatter",
         mode: "lines+markers",
-        name: key,
-        x: group.map((row) => row.forecast_made_on),
+        name: madeOn,
+        x: group.map((row) => row.forecast_for_date),
         y: group.map((row) => row.predicted_temp_max),
-        line: { width: 2, color: [COLORS.sanJose, COLORS.losAngeles, COLORS.amber, COLORS.blue, COLORS.green, COLORS.rose][index % 6] },
-        hovertemplate: "%{y:.1f}F<extra></extra>",
+        line: { color: palette[index % palette.length], width: 2 },
+        marker: { size: 6 },
+        hovertemplate: "%{y:.1f}<extra></extra>",
     }));
 
-    Plotly.react("chart-revisions", traces, {
-        ...baseLayout(390),
-        yaxis: { ...plotTheme().yaxis, title: "Predicted max (F)" },
+    Plotly.react(elementId, traces, {
+        ...baseLayout(330),
+        yaxis: { ...plotTheme().yaxis, title: "Forecast Temperature" },
+        xaxis: { ...plotTheme().xaxis, title: "Forecast Date" },
     }, PLOT_CONFIG);
 }
 
-function renderConditions() {
-    const rows = cityFiltered(DATA.categories);
+function renderConditions(city, elementId) {
     const counts = new Map();
-    for (const row of rows) {
-        const category = row.weather_category || "Uncategorized";
-        counts.set(category, (counts.get(category) || 0) + 1);
+    for (const row of rowsFor(DATA.categories, city)) {
+        const label = categoryLabel(row.weather_category);
+        counts.set(label, (counts.get(label) || 0) + 1);
     }
 
-    Plotly.react("chart-conditions", [{
+    const labels = [...counts.keys()];
+    Plotly.react(elementId, [{
         type: "pie",
-        labels: [...counts.keys()],
-        values: [...counts.values()],
-        hole: 0.45,
-        marker: { colors: [COLORS.actual, COLORS.amber, COLORS.blue, COLORS.green, COLORS.rose] },
-        textinfo: "label+percent",
+        labels,
+        values: labels.map((label) => counts.get(label)),
+        marker: { colors: labels.map(categoryColor) },
+        textinfo: "label",
+        sort: false,
         hovertemplate: "%{label}: %{value} days<extra></extra>",
     }], {
-        ...baseLayout(390),
-        hovermode: "closest",
-        showlegend: false,
-        margin: { l: 20, r: 20, t: 20, b: 20 },
+        ...baseLayout(330),
+        showlegend: true,
+        legend: { orientation: "h", y: 1.12, x: 0.4, font: { color: cssVar("--muted"), size: 11 } },
+        margin: { l: 20, r: 20, t: 24, b: 20 },
     }, PLOT_CONFIG);
 }
 
-function renderSeverity() {
-    const rows = cityFiltered(DATA.categories).sort((a, b) => String(a.weather_date).localeCompare(String(b.weather_date)));
-    const cities = selectedCity === "All" ? ["San Jose", "Los Angeles"] : [selectedCity];
-    const traces = cities.map((city) => {
-        const group = rows.filter((row) => row.city === city);
+function renderCategoriesOverTime(city, elementId) {
+    const rows = sortedByDate(rowsFor(DATA.categories, city), "weather_date");
+    const dates = [...new Set(rows.map((row) => row.weather_date))];
+    const categories = [...new Set(rows.map((row) => categoryLabel(row.weather_category)))];
+
+    const traces = categories.map((category) => ({
+        type: "bar",
+        name: category,
+        x: dates,
+        y: dates.map((date) => rows.filter((row) => row.weather_date === date && categoryLabel(row.weather_category) === category).length),
+        marker: { color: categoryColor(category) },
+        hovertemplate: `${category}: %{y}<extra></extra>`,
+    }));
+
+    Plotly.react(elementId, traces, {
+        ...baseLayout(330),
+        barmode: "stack",
+        yaxis: { ...plotTheme().yaxis, title: "Days" },
+        legend: { orientation: "h", y: 1.15, x: 0.42, font: { color: cssVar("--muted"), size: 11 } },
+    }, PLOT_CONFIG);
+}
+
+function renderRollingMetric(elementId, metricKey) {
+    const rows = sortedByDate(DATA.rolling || [], "weather_date");
+    const traces = ["Los Angeles", "San Jose"].map((city) => {
+        const group = rowsFor(rows, city);
+        const isFocused = city === selectedCity;
         return {
             type: "scatter",
-            mode: "lines",
-            name: city,
+            mode: "lines+markers",
+            name: CITY_LABELS[city],
             x: group.map((row) => row.weather_date),
-            y: group.map((row) => row.severity_score),
-            line: { color: city === "San Jose" ? COLORS.sanJose : COLORS.losAngeles, width: 3 },
-            hovertemplate: "Severity %{y}<extra></extra>",
+            y: group.map((row) => row[metricKey]),
+            line: { color: cityColor(city), width: isFocused ? 3 : 2 },
+            marker: { size: isFocused ? 5 : 4 },
+            opacity: isFocused ? 1 : 0.65,
+            hovertemplate: "%{y:.1f}<extra></extra>",
         };
     });
 
-    Plotly.react("chart-severity", traces, {
-        ...baseLayout(390),
-        yaxis: { ...plotTheme().yaxis, title: "Severity score" },
+    Plotly.react(elementId, traces, {
+        ...baseLayout(300),
+        yaxis: { ...plotTheme().yaxis, title: "Temperature" },
     }, PLOT_CONFIG);
 }
 
-function renderRolling() {
-    const rows = cityFiltered(DATA.rolling).sort((a, b) => String(a.weather_date).localeCompare(String(b.weather_date)));
-    const cities = selectedCity === "All" ? ["San Jose", "Los Angeles"] : [selectedCity];
+function renderHistoryForecast() {
     const traces = [];
 
-    for (const city of cities) {
-        const group = rows.filter((row) => row.city === city);
-        const suffix = selectedCity === "All" ? ` ${city}` : "";
+    for (const city of ["San Jose", "Los Angeles"]) {
+        const history = historyRows(city);
+        const forecast = forecastRows(city);
+        const isFocused = city === selectedCity;
+
         traces.push({
             type: "scatter",
             mode: "lines",
-            name: `7-day max${suffix}`,
-            x: group.map((row) => row.weather_date),
-            y: group.map((row) => row.temp_max_7day),
-            line: { color: COLORS.rose, width: 2, dash: city === "San Jose" ? "solid" : "dot" },
+            name: `AVG(ACTUAL_TEMP_MAX), ${CITY_SHORT[city]}, history`,
+            x: history.map((row) => row.weather_date),
+            y: history.map((row) => row.actual_temp_max),
+            line: { color: cityColor(city), width: isFocused ? 3 : 2 },
+            opacity: isFocused ? 1 : 0.62,
+            hovertemplate: "%{y:.1f}<extra></extra>",
         });
+
         traces.push({
             type: "scatter",
             mode: "lines",
-            name: `7-day mean${suffix}`,
-            x: group.map((row) => row.weather_date),
-            y: group.map((row) => row.temp_mean_7day_avg),
-            line: { color: city === "San Jose" ? COLORS.sanJose : COLORS.losAngeles, width: 3 },
-        });
-        traces.push({
-            type: "scatter",
-            mode: "lines",
-            name: `7-day min${suffix}`,
-            x: group.map((row) => row.weather_date),
-            y: group.map((row) => row.temp_min_7day),
-            line: { color: COLORS.blue, width: 2, dash: city === "San Jose" ? "solid" : "dot" },
+            name: `AVG(FORECAST_TEMP_MAX), ${CITY_SHORT[city]}, forecast`,
+            x: forecast.map((row) => row.weather_date),
+            y: forecast.map((row) => row.forecast_temp_max),
+            line: { color: cityColor(city, true), width: isFocused ? 3 : 2 },
+            opacity: isFocused ? 1 : 0.62,
+            hovertemplate: "%{y:.1f}<extra></extra>",
         });
     }
 
-    Plotly.react("chart-rolling", traces, {
-        ...baseLayout(500),
-        yaxis: { ...plotTheme().yaxis, title: "Temperature (F)" },
+    Plotly.react("chart-history-forecast", traces, {
+        ...baseLayout(420),
+        yaxis: { ...plotTheme().yaxis, title: "Temperature" },
     }, PLOT_CONFIG);
 }
 
 function renderAll() {
-    summarizeKpis();
-    renderForecast();
-    renderCityComparison();
-    renderAccuracy();
-    renderRevisions();
-    renderConditions();
-    renderSeverity();
-    renderRolling();
+    renderFreshness();
+    renderKpis();
+    renderRevisions("San Jose", "chart-revisions-sj");
+    renderRevisions("Los Angeles", "chart-revisions-la");
+    renderConditions("San Jose", "chart-conditions-sj");
+    renderConditions("Los Angeles", "chart-conditions-la");
+    renderCategoriesOverTime("San Jose", "chart-categories-sj");
+    renderCategoriesOverTime("Los Angeles", "chart-categories-la");
+    renderRollingMetric("chart-rolling-min", "temp_min_7day");
+    renderRollingMetric("chart-rolling-mean", "temp_mean_7day_avg");
+    renderRollingMetric("chart-rolling-max", "temp_max_7day");
+    renderHistoryForecast();
 }
 
 function initTheme() {
@@ -355,7 +416,7 @@ function initTheme() {
     });
 }
 
-function initCityFilter() {
+function initCityFocus() {
     document.querySelectorAll("[data-city]").forEach((button) => {
         button.addEventListener("click", () => {
             selectedCity = button.dataset.city;
@@ -373,7 +434,7 @@ async function loadJson(path) {
 
 async function init() {
     initTheme();
-    initCityFilter();
+    initCityFocus();
     document.querySelector(".preset-link").href = PRESET_URL;
 
     try {

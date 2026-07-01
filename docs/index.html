@@ -15,7 +15,7 @@
         <div>
             <p class="eyebrow">DATA 226 Weather Pipeline</p>
             <h1>Weather Forecast Live Dashboard</h1>
-            <p class="subtitle">San Jose and Los Angeles actuals, 7-day forecasts, accuracy, revisions, and conditions.</p>
+            <p class="subtitle">San Jose and Los Angeles actuals, Snowflake ML forecasts, forecast revisions, conditions, and rolling trends.</p>
         </div>
         <div class="header-actions">
             <a class="preset-link" href="https://9106dc82.us2a.app.preset.io/superset/dashboard/8/?native_filters_key=dBFp1-5AII8" target="_blank" rel="noreferrer">Preset</a>
@@ -25,109 +25,114 @@
 
     <main class="dashboard-container">
         <section class="toolbar" aria-label="Dashboard controls">
-            <div class="control-group" role="group" aria-label="City filter">
-                <button class="segmented active" type="button" data-city="All">All cities</button>
+            <div class="control-group" role="group" aria-label="City focus">
+                <button class="segmented active" type="button" data-city="Los Angeles">Los Angeles</button>
                 <button class="segmented" type="button" data-city="San Jose">San Jose</button>
-                <button class="segmented" type="button" data-city="Los Angeles">Los Angeles</button>
             </div>
             <div class="refresh-stamp" id="refresh-stamp">Loading data...</div>
         </section>
 
+        <section class="freshness-banner" id="freshness-banner" hidden aria-live="polite"></section>
+
         <section class="kpi-row" aria-label="Key metrics">
             <article class="kpi-card">
-                <span class="kpi-label">Latest Forecast Max</span>
-                <strong class="kpi-value" id="kpi-forecast">--</strong>
-                <span class="kpi-detail" id="kpi-forecast-detail">--</span>
+                <span class="kpi-label">Predicted Max Temp Avg - Los Angeles</span>
+                <strong class="kpi-value" id="kpi-la-forecast">--</strong>
+                <div id="spark-la-forecast" class="sparkline"></div>
             </article>
             <article class="kpi-card">
-                <span class="kpi-label">Latest Actual Max</span>
-                <strong class="kpi-value" id="kpi-actual">--</strong>
-                <span class="kpi-detail" id="kpi-actual-detail">--</span>
+                <span class="kpi-label">Predicted Max Temp Avg - San Jose</span>
+                <strong class="kpi-value" id="kpi-sj-forecast">--</strong>
+                <div id="spark-sj-forecast" class="sparkline"></div>
             </article>
             <article class="kpi-card">
-                <span class="kpi-label">Mean Abs Error</span>
-                <strong class="kpi-value" id="kpi-mae">--</strong>
-                <span class="kpi-detail">Forecast vs actual</span>
+                <span class="kpi-label">Forecast Error - Los Angeles (Avg Temp Max)</span>
+                <strong class="kpi-value" id="kpi-la-error">--</strong>
+                <div id="spark-la-error" class="sparkline"></div>
             </article>
             <article class="kpi-card">
-                <span class="kpi-label">Interval Hit Rate</span>
-                <strong class="kpi-value" id="kpi-hit-rate">--</strong>
-                <span class="kpi-detail">Actual within 95% PI</span>
+                <span class="kpi-label">Forecast Error - San Jose (Avg Temp Max)</span>
+                <strong class="kpi-value" id="kpi-sj-error">--</strong>
+                <div id="spark-sj-error" class="sparkline"></div>
             </article>
         </section>
 
-        <section class="section-grid hero-grid">
-            <article class="chart-card hero-card">
+        <h2 class="section-title">Forecast Revisions - How the Model Changed Its Mind Over Time</h2>
+        <section class="section-grid two-col">
+            <article class="chart-card">
                 <div class="chart-heading">
-                    <div>
-                        <h2>Actuals and 7-Day Forecast</h2>
-                        <p>Daily max temperature with forecast confidence band.</p>
-                    </div>
+                    <h3>Forecast Revisions - San Jose</h3>
                 </div>
-                <div id="chart-forecast" class="chart-container tall"></div>
+                <div id="chart-revisions-sj" class="chart-container"></div>
             </article>
             <article class="chart-card">
                 <div class="chart-heading">
-                    <div>
-                        <h2>City Comparison</h2>
-                        <p>Latest actual and forecast max temperature by city.</p>
-                    </div>
+                    <h3>Forecast Revisions - Los Angeles</h3>
                 </div>
-                <div id="chart-city-comparison" class="chart-container"></div>
+                <div id="chart-revisions-la" class="chart-container"></div>
+            </article>
+        </section>
+
+        <h2 class="section-title">Weather Conditions - What Kind of Days Have We Had. (SJ vs LA)</h2>
+        <section class="section-grid two-col">
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <h3>Weather Distribution - San Jose</h3>
+                </div>
+                <div id="chart-conditions-sj" class="chart-container"></div>
+            </article>
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <h3>Weather Distribution - Los Angeles</h3>
+                </div>
+                <div id="chart-conditions-la" class="chart-container"></div>
             </article>
         </section>
 
         <section class="section-grid two-col">
             <article class="chart-card">
                 <div class="chart-heading">
-                    <div>
-                        <h2>Forecast Accuracy</h2>
-                        <p>Absolute error grouped by forecast horizon.</p>
-                    </div>
+                    <h3>Weather Categories Over Time - San Jose</h3>
                 </div>
-                <div id="chart-accuracy" class="chart-container"></div>
+                <div id="chart-categories-sj" class="chart-container"></div>
             </article>
             <article class="chart-card">
                 <div class="chart-heading">
-                    <div>
-                        <h2>Forecast Revisions</h2>
-                        <p>Snapshot history for predictions that changed over time.</p>
-                    </div>
+                    <h3>Weather Categories Over Time - Los Angeles</h3>
                 </div>
-                <div id="chart-revisions" class="chart-container"></div>
+                <div id="chart-categories-la" class="chart-container"></div>
             </article>
         </section>
 
-        <section class="section-grid two-col">
+        <h2 class="section-title">Rolling 7-Day Temperature Trends - Min, Mean, Max for SJ and LA</h2>
+        <section class="section-grid three-col">
             <article class="chart-card">
                 <div class="chart-heading">
-                    <div>
-                        <h2>Weather Conditions</h2>
-                        <p>Observed weather category mix across the history window.</p>
-                    </div>
+                    <h3>Rolling 7-day Min Temp</h3>
                 </div>
-                <div id="chart-conditions" class="chart-container"></div>
+                <div id="chart-rolling-min" class="chart-container compact"></div>
             </article>
             <article class="chart-card">
                 <div class="chart-heading">
-                    <div>
-                        <h2>Severity Trend</h2>
-                        <p>Daily WMO severity score from the category mart.</p>
-                    </div>
+                    <h3>Rolling 7-day Mean Temp</h3>
                 </div>
-                <div id="chart-severity" class="chart-container"></div>
+                <div id="chart-rolling-mean" class="chart-container compact"></div>
+            </article>
+            <article class="chart-card">
+                <div class="chart-heading">
+                    <h3>Rolling 7-day Max Temp</h3>
+                </div>
+                <div id="chart-rolling-max" class="chart-container compact"></div>
             </article>
         </section>
 
+        <h2 class="section-title">60 Days of History + 7-Day Forecast</h2>
         <section class="section-grid">
             <article class="chart-card">
                 <div class="chart-heading">
-                    <div>
-                        <h2>Rolling 7-Day Trends</h2>
-                        <p>Trailing min, mean, and max temperature trends.</p>
-                    </div>
+                    <h3>Actual vs Forecast Max Temp</h3>
                 </div>
-                <div id="chart-rolling" class="chart-container tall"></div>
+                <div id="chart-history-forecast" class="chart-container tall"></div>
             </article>
         </section>
 

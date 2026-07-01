@@ -1,18 +1,18 @@
 :root {
-    --bg: #f7f4ed;
-    --surface: #fffdf8;
+    --bg: #f6f6f6;
+    --surface: #ffffff;
     --surface-strong: #ffffff;
-    --text: #17202a;
-    --muted: #5f6f7a;
-    --border: #d9ded8;
-    --grid: #dfe6df;
-    --teal: #277f83;
-    --teal-soft: #dcefed;
-    --amber: #c9782b;
-    --rose: #b75265;
-    --blue: #366ea7;
-    --green: #3a7f54;
-    --shadow: 0 18px 45px rgba(28, 38, 44, 0.10);
+    --text: #414141;
+    --muted: #737373;
+    --border: #e8e8e8;
+    --grid: #e6e6e6;
+    --teal: #2aa8bd;
+    --teal-soft: #e5f6f8;
+    --amber: #ffbf4d;
+    --rose: #ef6f79;
+    --blue: #4c568b;
+    --green: #6ed3b0;
+    --shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     --radius: 8px;
 }
 
@@ -40,9 +40,7 @@
 body {
     margin: 0;
     min-width: 320px;
-    background:
-        linear-gradient(180deg, rgba(39, 127, 131, 0.08), transparent 320px),
-        var(--bg);
+    background: var(--bg);
     color: var(--text);
     font-family: "IBM Plex Sans", sans-serif;
 }
@@ -59,7 +57,7 @@ a {
     gap: 24px;
     max-width: 1440px;
     margin: 0 auto;
-    padding: 36px 24px 20px;
+    padding: 24px 24px 14px;
 }
 
 .eyebrow {
@@ -74,8 +72,8 @@ a {
 
 h1 {
     margin: 0;
-    font-size: clamp(2rem, 4vw, 4.4rem);
-    line-height: 0.96;
+    font-size: clamp(1.8rem, 3vw, 3rem);
+    line-height: 1;
     letter-spacing: 0;
 }
 
@@ -157,6 +155,27 @@ h1 {
     text-align: right;
 }
 
+.freshness-banner {
+    margin: -4px 0 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.freshness-banner.freshness-ok {
+    border-color: color-mix(in srgb, var(--green) 45%, var(--border));
+    background: color-mix(in srgb, var(--green) 12%, var(--surface));
+    color: var(--text);
+}
+
+.freshness-banner.freshness-warning {
+    border-color: color-mix(in srgb, var(--amber) 55%, var(--border));
+    background: color-mix(in srgb, var(--amber) 14%, var(--surface));
+    color: var(--text);
+}
+
 .kpi-row {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -168,12 +187,12 @@ h1 {
 .chart-card {
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    background: var(--surface);
     box-shadow: var(--shadow);
 }
 
 .kpi-card {
-    min-height: 128px;
+    min-height: 216px;
     padding: 18px;
 }
 
@@ -184,16 +203,17 @@ h1 {
 }
 
 .kpi-label {
-    font-size: 0.82rem;
+    min-height: 38px;
+    font-size: 0.86rem;
     font-weight: 600;
-    text-transform: uppercase;
 }
 
 .kpi-value {
     display: block;
-    margin: 12px 0 6px;
+    margin: 22px 0 14px;
     font-family: "IBM Plex Mono", monospace;
-    font-size: clamp(1.8rem, 3vw, 3rem);
+    font-size: clamp(2.4rem, 4vw, 3.8rem);
+    font-weight: 500;
     line-height: 1;
 }
 
@@ -201,10 +221,22 @@ h1 {
     font-size: 0.88rem;
 }
 
+.sparkline {
+    width: 100%;
+    min-height: 82px;
+}
+
+.section-title {
+    margin: 28px 0 14px;
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
 .section-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 14px;
     margin-bottom: 18px;
 }
 
@@ -212,13 +244,13 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.hero-grid {
-    grid-template-columns: minmax(0, 1.75fr) minmax(340px, 0.8fr);
+.section-grid.three-col {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .chart-card {
     min-width: 0;
-    padding: 18px;
+    padding: 16px 18px 12px;
 }
 
 .chart-heading {
@@ -226,12 +258,13 @@ h1 {
     align-items: flex-start;
     justify-content: space-between;
     gap: 14px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
-.chart-heading h2 {
+.chart-heading h3 {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 0.92rem;
+    font-weight: 700;
     letter-spacing: 0;
 }
 
@@ -243,11 +276,15 @@ h1 {
 
 .chart-container {
     width: 100%;
-    min-height: 390px;
+    min-height: 330px;
+}
+
+.chart-container.compact {
+    min-height: 300px;
 }
 
 .chart-container.tall {
-    min-height: 500px;
+    min-height: 420px;
 }
 
 .empty-state {
@@ -287,7 +324,7 @@ h1 {
 
     .kpi-row,
     .section-grid.two-col,
-    .hero-grid {
+    .section-grid.three-col {
         grid-template-columns: 1fr;
     }
 }
