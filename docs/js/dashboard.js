@@ -42,6 +42,9 @@ const CATEGORY_COLORS = {
     drizzle: COLORS.drizzle,
 };
 
+const CATEGORY_ORDER = ["cloudy", "clear", "fog", "rain", "drizzle"];
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const CHART_IDS = [
     "spark-la-forecast",
     "spark-sj-forecast",
@@ -99,6 +102,13 @@ function dateLabel(value) {
     if (!value) return "--";
     const date = new Date(`${value}T00:00:00`);
     return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function dateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
 }
 
 function daysBetween(later, earlier) {
@@ -313,21 +323,47 @@ function renderConditions(city, elementId) {
 
 function renderCategoriesOverTime(city, elementId) {
     const rows = sortedByDate(rowsFor(DATA.categories, city), "weather_date");
-    const dates = [...new Set(rows.map((row) => row.weather_date))];
-    const categories = [...new Set(rows.map((row) => categoryLabel(row.weather_category)))];
+    const firstDate = parseDate(rows[0]?.weather_date);
+    const buckets = new Map();
+    const presentCategories = new Set();
+
+    for (const row of rows) {
+        const rowDate = parseDate(row.weather_date);
+        if (!firstDate || !rowDate) continue;
+
+        const bucketStart = new Date(firstDate);
+        bucketStart.setDate(firstDate.getDate() + Math.floor(daysBetween(rowDate, firstDate) / 7) * 7);
+
+        const bucket = dateKey(bucketStart);
+        const category = categoryLabel(row.weather_category);
+        presentCategories.add(category);
+
+        if (!buckets.has(bucket)) buckets.set(bucket, new Map());
+        const bucketCounts = buckets.get(bucket);
+        bucketCounts.set(category, (bucketCounts.get(category) || 0) + 1);
+    }
+
+    const dates = [...buckets.keys()].sort();
+    const categories = [
+        ...CATEGORY_ORDER.filter((category) => presentCategories.has(category)),
+        ...[...presentCategories].filter((category) => !CATEGORY_ORDER.includes(category)).sort(),
+    ];
 
     const traces = categories.map((category) => ({
         type: "bar",
         name: category,
         x: dates,
-        y: dates.map((date) => rows.filter((row) => row.weather_date === date && categoryLabel(row.weather_category) === category).length),
+        y: dates.map((date) => buckets.get(date)?.get(category) || 0),
+        width: 5 * DAY_MS,
         marker: { color: categoryColor(category) },
-        hovertemplate: `${category}: %{y}<extra></extra>`,
+        hovertemplate: `%{x|%d.%m.%Y}<br>${category}: %{y} days<extra></extra>`,
     }));
 
     Plotly.react(elementId, traces, {
         ...baseLayout(330),
         barmode: "stack",
+        bargap: 0.35,
+        xaxis: { ...plotTheme().xaxis, type: "date", tickformat: "%d.%m.%Y", dtick: 7 * DAY_MS },
         yaxis: { ...plotTheme().yaxis, title: "Days" },
         legend: { orientation: "h", y: 1.15, x: 0.42, font: { color: cssVar("--muted"), size: 11 } },
     }, PLOT_CONFIG);
