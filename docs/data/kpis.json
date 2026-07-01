@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-01T04:13:05+00:00",
+  "generated_at": "2026-07-01T04:59:55+00:00",
   "by_city": [
     {
       "city": "Los Angeles",
@@ -7,8 +7,8 @@
       "latest_forecast_temp_max": 25.2361,
       "latest_actual_date": "2026-06-17",
       "latest_actual_temp_max": 26.0,
-      "mean_absolute_error": null,
-      "interval_hit_rate_pct": null
+      "mean_absolute_error": 2.52,
+      "interval_hit_rate_pct": 96.6
     },
     {
       "city": "San Jose",
@@ -16,8 +16,8 @@
       "latest_forecast_temp_max": 26.4926,
       "latest_actual_date": "2026-06-17",
       "latest_actual_temp_max": 28.1,
-      "mean_absolute_error": null,
-      "interval_hit_rate_pct": null
+      "mean_absolute_error": 4.15,
+      "interval_hit_rate_pct": 51.7
     }
   ]
 }
