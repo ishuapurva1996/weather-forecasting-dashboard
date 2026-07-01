@@ -299,9 +299,10 @@ function renderConditions(city, elementId) {
         labels,
         values: labels.map((label) => counts.get(label)),
         marker: { colors: labels.map(categoryColor) },
-        textinfo: "label",
+        textinfo: "label+percent",
+        textposition: "auto",
         sort: false,
-        hovertemplate: "%{label}: %{value} days<extra></extra>",
+        hovertemplate: "%{label}: %{value} days (%{percent})<extra></extra>",
     }], {
         ...baseLayout(330),
         showlegend: true,
