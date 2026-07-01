@@ -1,10 +1,10 @@
-# Weather Forecasting Pipeline
+# Weather Forecasting & Analytics Dashboard
 
-End-to-end ELT pipeline for daily weather forecasting of two U.S. cities (San Jose, Los Angeles), built for **DATA 226** at SJSU.
+An end-to-end data engineering pipeline that ingests real weather data for San Jose and Los Angeles, trains Snowflake forecasts, transforms the output through dbt marts, and surfaces insights on a live analytics dashboard.
 
-**Stack:** Open-Meteo API → Apache Airflow → Snowflake (`SNOWFLAKE.ML.FORECAST`) → dbt → Preset Cloud / GitHub Pages.
+**Stack:** Open-Meteo API -> Apache Airflow (Docker) -> Snowflake (`SNOWFLAKE.ML.FORECAST`) -> dbt -> GitHub Actions -> Web Dashboard (Plotly.js) / Preset Cloud
 
-**Dashboard URL:** [ishuapurva1996.github.io/weather-forecasting-dashboard](https://ishuapurva1996.github.io/weather-forecasting-dashboard/) *(available after GitHub Pages is enabled from `main` / `/docs`)*
+**Live Dashboard:** [ishuapurva1996.github.io/weather-forecasting-dashboard](https://ishuapurva1996.github.io/weather-forecasting-dashboard/)
 
 The pipeline ingests 60 days of historical daily weather, produces a 7-day forecast with a 95% prediction interval, transforms the result into analytics-grade marts (with dbt tests and an SCD-2 snapshot), and surfaces the output on Preset plus a public static Plotly dashboard.
 
@@ -12,7 +12,7 @@ The pipeline ingests 60 days of historical daily weather, produces a 7-day forec
 
 ## Dashboard Preview
 
-![Weather Forecast Dashboard](./dashboard_v3_preview.png)
+[![Weather Forecast Live Dashboard](./dashboard_v3_preview.png)](https://ishuapurva1996.github.io/weather-forecasting-dashboard/)
 
 ---
 
