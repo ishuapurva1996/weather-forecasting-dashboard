@@ -7,6 +7,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import timedelta
 from datetime import datetime
 import snowflake.connector
+from weather_publication import now, success_receipt
 
 
 def return_snowflake_conn():
@@ -21,6 +22,7 @@ def return_snowflake_conn():
 
 @task
 def train_model(target_view, model_name, input_table):
+        started = now()
         con = return_snowflake_conn()
 
         sql_view = f"""CREATE OR REPLACE VIEW {target_view} AS (
@@ -40,10 +42,12 @@ def train_model(target_view, model_name, input_table):
                             CONFIG_OBJECT => {{ 'ON_ERROR': 'SKIP' }}
                         );"""
         con.execute(create_model)
+        return success_receipt(started)
 
 
 @task
 def predict(model_name, forecast_prediction_table):
+        started = now()
         con = return_snowflake_conn()
 
         prediction_sql = f""" BEGIN
@@ -59,11 +63,13 @@ def predict(model_name, forecast_prediction_table):
         con.execute(prediction_sql)
 
         print(f'{model_name} generated prediction --> stored in {forecast_prediction_table}')
+        return success_receipt(started)
 
 with DAG(
     dag_id = 'forecast_model_temp_max',
     start_date = datetime(2026,3,1),
     catchup=False,
+    max_active_runs=1,
     tags=['ETL'],
     schedule=None,
 ) as dag:
@@ -79,8 +85,12 @@ with DAG(
        trigger_dbt = TriggerDagRunOperator(
               task_id='trigger_dbt_pipeline',
               trigger_dag_id='weather_dbt_pipeline',
-              wait_for_completion=False,
-              reset_dag_run=True,
+              wait_for_completion=True,
+              poke_interval=15,
+              reset_dag_run=False,
+              trigger_run_id="weather__{{ run_id }}",
+              conf={"weather_root_run_id": "{{ dag_run.conf.get('weather_root_run_id', '') }}",
+                    "weather_forecast_run_id": "{{ run_id }}"},
        )
 
        train_model(target_view, model_name, input_table) >> predict_task >> trigger_dbt

@@ -1,14 +1,5 @@
 const PRESET_URL = "https://9106dc82.us2a.app.preset.io/superset/dashboard/8/?native_filters_key=dBFp1-5AII8";
 
-const FILES = {
-    kpis: "data/kpis.json",
-    daily: "data/daily_weather.json",
-    accuracy: "data/forecast_accuracy.json",
-    revisions: "data/forecast_revisions.json",
-    categories: "data/weather_categories.json",
-    rolling: "data/rolling_weather.json",
-};
-
 const CITY_LABELS = {
     "Los Angeles": "Los Angeles",
     "San Jose": "San Jose",
@@ -185,8 +176,9 @@ function sparkLayout(color) {
 }
 
 function renderFreshness() {
-    document.getElementById("refresh-stamp").textContent = `Data refreshed: ${DATA.kpis?.generated_at || "sample data"}`;
+    document.getElementById("refresh-stamp").textContent = `Actual weather through ${DATA.metadata.latest_actual_date} · Exported ${new Date(DATA.metadata.exported_at).toLocaleString()}`;
 
+    document.getElementById("provenance-details").textContent = `Source captured: ${DATA.metadata.source_captured_at || "unknown"}. Warehouse build completed: ${DATA.metadata.warehouse_completed_at || "unknown"}. Exported: ${DATA.metadata.exported_at}. Refresh follows a successful daily Airflow run; the host and Docker must be running. Forecast intervals are 95% prediction intervals. Temperatures are in °C. Historical observations are Open-Meteo model estimates. Forecast accuracy is unavailable until a prior prediction has a matching actual day.`;
     const banner = document.getElementById("freshness-banner");
     const generatedAt = DATA.kpis?.generated_at;
     const generatedDate = parseDate(generatedAt);
@@ -220,7 +212,7 @@ function renderFreshness() {
         return;
     }
 
-    banner.textContent = `Live Snowflake export is current. Latest actual weather: ${dateLabel(actualDate.toISOString().slice(0, 10))}.`;
+    banner.textContent = `Weather data is current. Latest actual weather: ${dateLabel(actualDate.toISOString().slice(0, 10))}.`;
     banner.classList.add("freshness-ok");
     banner.hidden = false;
 }
@@ -389,7 +381,7 @@ function renderRollingMetric(elementId, metricKey) {
 
     Plotly.react(elementId, traces, {
         ...baseLayout(300),
-        yaxis: { ...plotTheme().yaxis, title: "Temperature" },
+        yaxis: { ...plotTheme().yaxis, title: "Temperature (°C)" },
     }, PLOT_CONFIG);
 }
 
@@ -426,7 +418,7 @@ function renderHistoryForecast() {
 
     Plotly.react("chart-history-forecast", traces, {
         ...baseLayout(420),
-        yaxis: { ...plotTheme().yaxis, title: "Temperature" },
+        yaxis: { ...plotTheme().yaxis, title: "Temperature (°C)" },
     }, PLOT_CONFIG);
 }
 
@@ -479,15 +471,12 @@ async function init() {
     document.querySelector(".preset-link").href = PRESET_URL;
 
     try {
-        const [kpis, daily, accuracy, revisions, categories, rolling] = await Promise.all([
-            loadJson(FILES.kpis),
-            loadJson(FILES.daily),
-            loadJson(FILES.accuracy),
-            loadJson(FILES.revisions),
-            loadJson(FILES.categories),
-            loadJson(FILES.rolling),
-        ]);
-        DATA = { kpis, daily, accuracy, revisions, categories, rolling };
+        const bundle = await loadJson("data/dashboard.json");
+        if (bundle.schema_version !== 1) throw new Error("Unsupported weather data version");
+        const d = bundle.datasets;
+        DATA = { metadata: bundle.metadata, kpis: d.kpis, daily: d.daily_weather,
+                 accuracy: d.forecast_accuracy, revisions: d.forecast_revisions,
+                 categories: d.weather_categories, rolling: d.rolling_weather };
         renderAll();
     } catch (error) {
         console.error(error);

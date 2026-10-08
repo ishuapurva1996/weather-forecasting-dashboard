@@ -33,25 +33,26 @@
         </section>
 
         <section class="freshness-banner" id="freshness-banner" hidden aria-live="polite"></section>
+        <details style="margin: 0 0 20px; color: var(--muted); font-size: 13px;"><summary>Data freshness and methodology</summary><p id="provenance-details"></p><p>Weather data: <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a></p></details>
 
         <section class="kpi-row" aria-label="Key metrics">
             <article class="kpi-card">
-                <span class="kpi-label">Predicted Max Temp Avg - Los Angeles</span>
+                <span class="kpi-label">Predicted Max Temp Avg (°C) - Los Angeles</span>
                 <strong class="kpi-value" id="kpi-la-forecast">--</strong>
                 <div id="spark-la-forecast" class="sparkline"></div>
             </article>
             <article class="kpi-card">
-                <span class="kpi-label">Predicted Max Temp Avg - San Jose</span>
+                <span class="kpi-label">Predicted Max Temp Avg (°C) - San Jose</span>
                 <strong class="kpi-value" id="kpi-sj-forecast">--</strong>
                 <div id="spark-sj-forecast" class="sparkline"></div>
             </article>
             <article class="kpi-card">
-                <span class="kpi-label">Forecast Error - Los Angeles (Avg Temp Max)</span>
+                <span class="kpi-label">Forecast Error (°C) - Los Angeles (Avg Temp Max)</span>
                 <strong class="kpi-value" id="kpi-la-error">--</strong>
                 <div id="spark-la-error" class="sparkline"></div>
             </article>
             <article class="kpi-card">
-                <span class="kpi-label">Forecast Error - San Jose (Avg Temp Max)</span>
+                <span class="kpi-label">Forecast Error (°C) - San Jose (Avg Temp Max)</span>
                 <strong class="kpi-value" id="kpi-sj-error">--</strong>
                 <div id="spark-sj-error" class="sparkline"></div>
             </article>
@@ -138,7 +139,7 @@
 
         <section class="empty-state" id="dashboard-error" hidden>
             <h2>Dashboard data is unavailable</h2>
-            <p>Run <code>python web_dashboard/export_data.py</code>, then serve this folder over HTTP.</p>
+            <p>Weather data could not be loaded. Try reloading this page. If the issue continues, check the latest dashboard deployment.</p>
         </section>
     </main>
 

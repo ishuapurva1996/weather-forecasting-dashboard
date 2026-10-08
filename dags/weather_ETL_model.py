@@ -8,6 +8,7 @@ from datetime import timedelta
 from datetime import datetime
 import snowflake.connector
 import requests
+from weather_publication import now, success_receipt
 
 
 def return_snowflake_conn():
@@ -79,12 +80,14 @@ def extract_past_60_days_weather_city(latitude, longitude):
               "timezone": "America/Los_Angeles" #TODO: Update TimeZone
       }
 
-    r = requests.get(url, params=params)
+    captured_at = now()
+    r = requests.get(url, params=params, timeout=(10, 60))
 
     if r.status_code != 200:
       raise RuntimeError(f'API request failed{r.status_code}')
 
     data = r.json()
+    data["_source_captured_at"] = captured_at
     return data
 
 
@@ -105,6 +108,7 @@ def transform_past_60_days_weather_city(extracted_raw_data, latitude, longitude,
                 continue
 
             records.append( {
+            '_source_captured_at': extracted_raw_data['_source_captured_at'],
             'latitude':latitude,
             'longitude': longitude,
             'date': data['time'][i],
@@ -139,9 +143,11 @@ def combine_rec_of_2_cities(city1_data, city2_data):
 #load func that runs for both cities
 @task
 def load(records, target_table):
+  started = now()
+  if not records:
+      raise ValueError("Cannot replace weather history with an empty source")
   con = return_snowflake_conn()
   try:
-      con.execute("BEGIN")
       con.execute(f"""CREATE TABLE IF NOT EXISTS {target_table} (
         latitude        NUMBER(9,6) NOT NULL,
         longitude       NUMBER(9,6) NOT NULL,
@@ -153,6 +159,8 @@ def load(records, target_table):
         city            VARCHAR,
 
         PRIMARY KEY(latitude, longitude, date));""")
+      # Snowflake DDL commits implicitly; begin replacement after table setup.
+      con.execute("BEGIN")
 
       con.execute(f"""DELETE FROM {target_table}""")
 
@@ -164,6 +172,7 @@ def load(records, target_table):
       con.executemany(insert_sql, rows)
       con.execute("COMMIT")
       print(f'loaded {len(records)} records in the {target_table}')
+      return success_receipt(started, source_captured_at=min(r['_source_captured_at'] for r in records))
 
   except Exception as e:
       con.execute("ROLLBACK;")
@@ -177,6 +186,7 @@ with DAG(
     dag_id = 'WeatherData_multiple_cities_data',
     start_date = datetime(2026,3,1),
     catchup=False,
+    max_active_runs=1,
     tags=['ETL'],
     schedule = '20 19 * * *'
 ) as dag:
@@ -204,8 +214,11 @@ with DAG(
     trigger_forecast = TriggerDagRunOperator(
         task_id='trigger_forecast_dag',
         trigger_dag_id='forecast_model_temp_max',
-        wait_for_completion=False,
-        reset_dag_run=True,
+        wait_for_completion=True,
+        poke_interval=15,
+        reset_dag_run=False,
+        trigger_run_id="weather__{{ run_id }}",
+        conf={"weather_root_run_id": "{{ run_id }}"},
     )
 
     load_task >> trigger_forecast

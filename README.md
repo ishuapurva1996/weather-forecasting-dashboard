@@ -6,6 +6,8 @@ An end-to-end data engineering pipeline that ingests real weather data for San J
 
 **Live Dashboard:** [ishuapurva1996.github.io/weather-forecasting-dashboard](https://ishuapurva1996.github.io/weather-forecasting-dashboard/)
 
+The latest available real export is from **August 3, 2026**, with actual weather through **August 2**. The weather Snowflake account is currently suspended after its trial expired, so automatic refresh is pending restoration of that connection and the private publication settings. The page preserves those dates and shows a stale-data warning. See [dashboard operations](docs/DASHBOARD_OPERATIONS.md).
+
 The pipeline ingests 60 days of historical daily weather, produces a 7-day forecast with a 95% prediction interval, transforms the result into analytics-grade marts (with dbt tests and an SCD-2 snapshot), and surfaces the output on Preset plus a public static Plotly dashboard.
 
 ---
@@ -24,9 +26,9 @@ Three chained Airflow DAGs plus a dbt project:
 
 1. **`WeatherData_multiple_cities_data` (ETL DAG)** — extracts past 60 days of daily weather for San Jose and Los Angeles from Open-Meteo, transforms the JSON response into typed records, and loads `RAW.WEATHER_ETL_MULTIPLE_CITIES` inside a Snowflake transaction (BEGIN / DELETE / INSERT / COMMIT, ROLLBACK on error). Triggers DAG 2 on success.
 2. **`forecast_model_temp_max` (ML DAG)** — creates a view over the raw table, trains `SNOWFLAKE.ML.FORECAST` per city series, and writes 7-day predictions with 95% PI to `ANALYTICS.WEATHER_FORECAST_LAB1`. Triggers DAG 3 on success.
-3. **`weather_dbt_pipeline` (dbt DAG)** — runs `dbt seed`, `dbt snapshot`, `dbt run`, and `dbt test` sequentially via `BashOperator`, materializing the seed, staging models, marts, and snapshot tables in `ANALYTICS`. After tests pass, it can dispatch the GitHub Actions dashboard deploy workflow.
+3. **`weather_dbt_pipeline` (dbt DAG)** — runs `dbt seed`, `dbt snapshot`, `dbt run`, and `dbt test` sequentially via `BashOperator`, materializing the seed, staging models, marts, and snapshot tables in `ANALYTICS`. After tests pass, it validates and uploads a private immutable weather export, then dispatches the GitHub Actions Pages workflow.
 
-DAG chaining uses `TriggerDagRunOperator` with `wait_for_completion=False`.
+DAG chaining uses `TriggerDagRunOperator` with `wait_for_completion=True` and `max_active_runs=1`. Parent runs wait for the complete downstream pipeline, reducing overlapping scheduled writes. Explicit run lineage and success receipts bind dashboard publication to the real attempts that produced the warehouse data.
 
 ## Repository layout
 
@@ -63,7 +65,7 @@ DAG chaining uses `TriggerDagRunOperator` with `wait_for_completion=False`.
 │   ├── js/dashboard.js
 │   └── data/*.json
 ├── .github/workflows/
-│   └── deploy-dashboard.yml           # Snowflake export -> docs/ GitHub Pages deploy
+│   └── deploy-dashboard.yml           # Validated S3 export -> Pages artifact
 ├── plugins/
 ├── config/
 ├── Dockerfile
@@ -124,11 +126,7 @@ The dbt DAG re-uses this connection by templating `DBT_*` env vars from `conn.sn
 - `city1_LATITUDE`, `city1_LONGITUDE` — San Jose (37.34, −121.89)
 - `city2_LATITUDE`, `city2_LONGITUDE` — Los Angeles (34.05, −118.24)
 
-**Optional dashboard deploy variables** — only needed if the dbt DAG should dispatch the GitHub Pages refresh after `dbt test`:
-- `GITHUB_PAT` — token with permission to dispatch Actions workflows
-- `GITHUB_REPOSITORY` — owner/repo, for example `your-user/weather-forecasting-pipeline`
-- `GITHUB_BRANCH` — defaults to `main`
-- `DASHBOARD_WORKFLOW_FILE` — defaults to `deploy-dashboard.yml`
+**Automatic dashboard publication** uses the existing `snowflake_conn` and the private settings in [.env.example](.env.example). Configure a weather-only GitHub dispatch token, a dedicated private S3 prefix, and the weather metadata API login. Follow [dashboard operations](docs/DASHBOARD_OPERATIONS.md) before enabling automatic mode. The daily ingestion schedule remains **19:20 UTC** (12:20 PM PDT / 11:20 AM PST); the computer and Docker services must be running.
 
 ### dbt commands (run inside the Airflow container, or locally)
 
@@ -152,7 +150,7 @@ The Preset Cloud dashboard reads five marts plus the snapshot directly:
 
 ### Public GitHub Pages dashboard
 
-A public static dashboard lives in `web_dashboard/`, following the same shape as the EV charging stations reference project: Plotly.js charts load pre-exported JSON files, so the live page does not need Snowflake credentials in the browser.
+A public static dashboard lives in `web_dashboard/`, Plotly.js charts load pre-exported JSON files, so the live page does not need Snowflake credentials in the browser.
 
 The public dashboard includes:
 
@@ -164,49 +162,28 @@ The public dashboard includes:
 - Weather conditions — category distribution and severity trend
 - Rolling 7-day trends — min, mean, and max temperature
 
-Local preview:
+Local preview of the validated real snapshot:
 
 ```bash
-cd web_dashboard
-python export_data.py       # requires Snowflake env vars; sample JSON is included for UI preview
-python -m http.server 8000
-# open http://localhost:8000
+python scripts/build_dashboard_site.py --snapshot --state /tmp/weather-selection.json
+python -m http.server 8000 --directory _site
 ```
 
-Required GitHub Actions secrets for live export:
+GitHub Pages now uses an allowlisted static artifact rather than committing generated files back to the source branch. The original `docs/` copy remains as legacy source; it is no longer the Pages publishing folder.
 
-- `SNOWFLAKE_ACCOUNT`
-- `SNOWFLAKE_USER`
-- `SNOWFLAKE_PASSWORD`
-- `SNOWFLAKE_DATABASE`
-- `SNOWFLAKE_WAREHOUSE`
-- `SNOWFLAKE_ROLE`
-- `SNOWFLAKE_SCHEMA` (optional, defaults to `ANALYTICS`)
+- [Publish dashboard snapshot](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/workflows/deploy-dashboard-snapshot.yml) publishes the checked-in, checksum-verified real export on relevant changes to `main` or manual dispatch while automatic mode is off. Redeployment preserves source dates and does not rebuild Snowflake data.
+- [Deploy dashboard](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/workflows/deploy-dashboard.yml) publishes the latest validated Airflow/S3 export when the repository variable `DASHBOARD_PUBLICATION_MODE` is `airflow`.
+- Both workflows serialize publication and verify the served public JSON checksum. [Validation](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/workflows/validate-dashboard.yml) runs without private credentials.
 
-GitHub Pages setup:
-
-1. In GitHub, open **Settings → Pages**.
-2. Set source to **Deploy from a branch**.
-3. Select branch `main` and folder `/docs`.
-4. Run the **Deploy Weather Dashboard** workflow manually once, or push a change under `web_dashboard/**`.
-
-Target URL:
+Automatic flow:
 
 ```text
-https://ishuapurva1996.github.io/weather-forecasting-dashboard/
+Open-Meteo → Airflow ingestion → Snowflake ML forecast
+→ dbt seed/snapshot/run/test → validated private S3 bundle
+→ weather-only GitHub dispatch → Pages artifact → public checksum verification
 ```
 
-The workflow exports fresh Snowflake mart data into `web_dashboard/data/`, copies the static dashboard into `docs/`, and commits only when dashboard assets or JSON data changed. Existing architecture files under `docs/` are preserved.
-
-Automated deployment follows the same pattern as the reference dashboard repo:
-
-```text
-Airflow dbt DAG passes
--> trigger GitHub Actions deploy-dashboard.yml
--> export Snowflake data to web_dashboard/data/
--> copy static dashboard files to docs/
--> commit and push if the exported dashboard changed
-```
+A failed or stale export never falls back to sample data. Missing publication configuration fails the dependent task explicitly. Follow [dashboard operations](docs/DASHBOARD_OPERATIONS.md) for exact settings, credential rotation, and recovery. The initial automatic weather run remains unverified because the Snowflake account is suspended.
 
 ## Authors
 

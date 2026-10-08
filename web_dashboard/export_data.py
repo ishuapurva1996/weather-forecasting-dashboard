@@ -20,13 +20,15 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
-import snowflake.connector
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv(*args, **kwargs):
+        return False
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = Path(__file__).resolve().parent / "data"
-DATA_DIR.mkdir(exist_ok=True)
 load_dotenv(PROJECT_ROOT / ".env")
 
 IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_$]*$")
@@ -51,13 +53,16 @@ QUERIES = {
                forecast_lower_bound, forecast_upper_bound, record_type
         FROM {table_name("FCT_DAILY_WEATHER")}
         ORDER BY city, weather_date, record_type
+        LIMIT 135
     """,
     "forecast_accuracy": lambda: f"""
         SELECT forecast_made_on, forecast_for_date, city, predicted_temp_max,
                predicted_lower, predicted_upper, actual_temp_max, error,
                absolute_error, days_ahead, actual_in_interval
         FROM {table_name("FCT_FORECAST_ACCURACY")}
+        WHERE days_ahead BETWEEN 1 AND 7
         ORDER BY city, forecast_for_date, days_ahead
+        LIMIT 4001
     """,
     "forecast_revisions": lambda: f"""
         SELECT CAST(dbt_valid_from AS DATE) AS forecast_made_on,
@@ -68,7 +73,9 @@ QUERIES = {
                upper_bound AS predicted_upper,
                CAST(dbt_valid_to AS DATE) AS valid_to
         FROM {table_name("SNP_WEATHER_FORECAST")}
+        WHERE CAST(ts AS DATE) >= DATEADD(day, -60, CURRENT_DATE())
         ORDER BY city, forecast_for_date, forecast_made_on
+        LIMIT 4001
     """,
     "weather_categories": lambda: f"""
         SELECT weather_date, city, weather_code, weather_description,
@@ -76,6 +83,7 @@ QUERIES = {
                actual_temp_min, actual_temp_mean
         FROM {table_name("FCT_WEATHER_CATEGORY_DAILY")}
         ORDER BY city, weather_date
+        LIMIT 121
     """,
     "rolling_weather": lambda: f"""
         SELECT city, weather_date, temp_max, temp_min, temp_mean,
@@ -83,18 +91,22 @@ QUERIES = {
                days_in_window
         FROM {table_name("FCT_WEATHER_ROLLING")}
         ORDER BY city, weather_date
+        LIMIT 121
     """,
 }
 
 
 def get_connection():
+    import snowflake.connector
     return snowflake.connector.connect(
         account=os.environ["SNOWFLAKE_ACCOUNT"],
         user=os.environ["SNOWFLAKE_USER"],
         password=os.environ["SNOWFLAKE_PASSWORD"],
         database=os.environ["SNOWFLAKE_DATABASE"],
         warehouse=os.environ["SNOWFLAKE_WAREHOUSE"],
-        role=os.environ.get("SNOWFLAKE_ROLE", "SYSADMIN"),
+        role=os.environ["SNOWFLAKE_ROLE"],
+        login_timeout=30, network_timeout=60, socket_timeout=30,
+        session_parameters={"STATEMENT_TIMEOUT_IN_SECONDS": 120},
     )
 
 
@@ -140,7 +152,7 @@ def mean(values):
     return round(sum(clean) / len(clean), 2) if clean else None
 
 
-def build_kpis(daily_weather, forecast_accuracy):
+def build_kpis(daily_weather, forecast_accuracy, generated_at=None):
     cities = sorted({row["city"] for row in daily_weather if row.get("city")})
     by_city = []
 
@@ -174,37 +186,51 @@ def build_kpis(daily_weather, forecast_accuracy):
         )
 
     return {
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_at": generated_at or datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "by_city": by_city,
     }
 
 
-def write_json(filename, data):
-    path = DATA_DIR / filename
-    with path.open("w", encoding="utf-8") as file:
-        json.dump(data, file, indent=2)
-        file.write("\n")
-    size = len(data) if isinstance(data, list) else "object"
-    print(f"wrote {path.relative_to(PROJECT_ROOT)} ({size})")
+def extract_bundle(conn, source_captured_at, warehouse_completed_at):
+    from validate_data import encode_bundle
+    exported = {name: query_to_records(conn, factory()) for name, factory in QUERIES.items()}
+    exported_at = datetime.now(timezone.utc).isoformat()
+    exported['kpis'] = build_kpis(exported['daily_weather'], exported['forecast_accuracy'], generated_at=exported_at)
+    bundle = {
+        'schema_version': 1,
+        'metadata': {
+            'source': 'Open-Meteo / Snowflake ML / dbt',
+            'source_captured_at': source_captured_at,
+            'warehouse_completed_at': warehouse_completed_at,
+            'exported_at': exported_at,
+            'latest_actual_date': min(r['latest_actual_date'] for r in exported['kpis']['by_city']),
+            'expected_refresh_hours': 24,
+        },
+        'datasets': exported,
+    }
+    encode_bundle(bundle)
+    return bundle
 
 
 def main():
-    print("Connecting to Snowflake...")
+    import argparse
+    from validate_data import encode_bundle
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source-captured-at', required=True)
+    parser.add_argument('--warehouse-completed-at', required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
     conn = get_connection()
-    exported = {}
-
     try:
-        for name, query_factory in QUERIES.items():
-            print(f"Exporting {name}...")
-            exported[name] = query_to_records(conn, query_factory())
-            write_json(f"{name}.json", exported[name])
-
-        kpis = build_kpis(exported["daily_weather"], exported["forecast_accuracy"])
-        write_json("kpis.json", kpis)
+        bundle = extract_bundle(conn, args.source_captured_at, args.warehouse_completed_at)
+        body, checksum = encode_bundle(bundle)
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        temporary = args.output.with_suffix('.pending')
+        temporary.write_bytes(body)
+        os.replace(temporary, args.output)
+        print('Validated real weather export:', checksum)
     finally:
         conn.close()
-
-    print("Dashboard export complete.")
 
 
 if __name__ == "__main__":

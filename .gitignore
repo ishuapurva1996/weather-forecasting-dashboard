@@ -22,3 +22,6 @@ airflow.db
 airflow-webserver.pid
 standalone_admin_password.txt
 .env
+
+# Generated deployment output
+_site/
