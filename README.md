@@ -6,6 +6,8 @@ An end-to-end data engineering pipeline that ingests real weather data for San J
 
 **Live Dashboard:** [ishuapurva1996.github.io/weather-forecasting-dashboard](https://ishuapurva1996.github.io/weather-forecasting-dashboard/)
 
+The [October 7, 2026 snapshot deployment](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/runs/37707861863) succeeded, and its public JSON checksum, all 14 charts, city/theme controls, and desktop/mobile layout were verified.
+
 The latest available real export is from **August 3, 2026**, with actual weather through **August 2**. The weather Snowflake account is currently suspended after its trial expired, so automatic refresh is pending restoration of that connection and the private publication settings. The page preserves those dates and shows a stale-data warning. See [dashboard operations](docs/DASHBOARD_OPERATIONS.md).
 
 The pipeline ingests 60 days of historical daily weather, produces a 7-day forecast with a 95% prediction interval, transforms the result into analytics-grade marts (with dbt tests and an SCD-2 snapshot), and surfaces the output on Preset plus a public static Plotly dashboard.
@@ -14,7 +16,7 @@ The pipeline ingests 60 days of historical daily weather, produces a 7-day forec
 
 ## Dashboard Preview
 
-[![Weather Forecast Live Dashboard](./dashboard_v3_preview.png)](https://ishuapurva1996.github.io/weather-forecasting-dashboard/)
+[![Weather Forecast Live Dashboard](docs/assets/dashboard-preview.jpg)](https://ishuapurva1996.github.io/weather-forecasting-dashboard/)
 
 ---
 

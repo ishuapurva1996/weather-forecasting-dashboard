@@ -6,7 +6,7 @@ The public weather dashboard uses the approved static frontend in `web_dashboard
 
 Snapshot publication uses the existing real August 3, 2026 export, with actual weather through August 2. Capture and warehouse completion timestamps were not recorded in that export and remain `null`; reassembly does not change its original export date. The browser shows a stale-data warning.
 
-A new complete ingestion was attempted on October 7, 2026. Open-Meteo extraction succeeded, but the Snowflake load failed because the weather account's trial expired and its warehouses were suspended. Scheduled ingestion is paused until the connection is restored. No automatic weather export or deployment has been verified. Local contract, failure-path, desktop/mobile, base-path, and control checks passed for the snapshot.
+A new complete ingestion was attempted on October 7, 2026. Open-Meteo extraction succeeded, but the Snowflake load failed because the weather account's trial expired and its warehouses were suspended. Scheduled ingestion is paused until the connection is restored. No automatic weather export or deployment has been verified. Contract and failure-path checks passed. The [October 7, 2026 snapshot Pages deployment](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/runs/37707861863) succeeded on commit `70a9559`; deployment and public checksum verification steps both ran. The served JSON matched the selected snapshot, and all 14 charts, city/theme controls, provenance panel, desktop/mobile layout, and repository base path were checked on the live site without console errors. The README preview is a screenshot of this verified public page, stored as a required product asset.
 
 ## Two mutually exclusive publication routes
 
