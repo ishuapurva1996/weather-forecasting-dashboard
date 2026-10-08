@@ -1,5 +1,3 @@
-const PRESET_URL = "https://9106dc82.us2a.app.preset.io/superset/dashboard/8/?native_filters_key=dBFp1-5AII8";
-
 const CITY_LABELS = {
     "Los Angeles": "Los Angeles",
     "San Jose": "San Jose",
@@ -61,7 +59,6 @@ const PLOT_CONFIG = {
 const MAX_STALE_DAYS = 3;
 
 let DATA = {};
-let selectedCity = "Los Angeles";
 
 function cssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -366,16 +363,14 @@ function renderRollingMetric(elementId, metricKey) {
     const rows = sortedByDate(DATA.rolling || [], "weather_date");
     const traces = ["Los Angeles", "San Jose"].map((city) => {
         const group = rowsFor(rows, city);
-        const isFocused = city === selectedCity;
         return {
             type: "scatter",
             mode: "lines+markers",
             name: CITY_LABELS[city],
             x: group.map((row) => row.weather_date),
             y: group.map((row) => row[metricKey]),
-            line: { color: cityColor(city), width: isFocused ? 3 : 2 },
-            marker: { size: isFocused ? 5 : 4 },
-            opacity: isFocused ? 1 : 0.65,
+            line: { color: cityColor(city), width: 2 },
+            marker: { size: 4 },
             hovertemplate: "%{y:.1f}<extra></extra>",
         };
     });
@@ -392,7 +387,6 @@ function renderHistoryForecast() {
     for (const city of ["San Jose", "Los Angeles"]) {
         const history = historyRows(city);
         const forecast = forecastRows(city);
-        const isFocused = city === selectedCity;
 
         traces.push({
             type: "scatter",
@@ -400,8 +394,7 @@ function renderHistoryForecast() {
             name: `AVG(ACTUAL_TEMP_MAX), ${CITY_SHORT[city]}, history`,
             x: history.map((row) => row.weather_date),
             y: history.map((row) => row.actual_temp_max),
-            line: { color: cityColor(city), width: isFocused ? 3 : 2 },
-            opacity: isFocused ? 1 : 0.62,
+            line: { color: cityColor(city), width: 2 },
             hovertemplate: "%{y:.1f}<extra></extra>",
         });
 
@@ -411,8 +404,7 @@ function renderHistoryForecast() {
             name: `AVG(FORECAST_TEMP_MAX), ${CITY_SHORT[city]}, forecast`,
             x: forecast.map((row) => row.weather_date),
             y: forecast.map((row) => row.forecast_temp_max),
-            line: { color: cityColor(city, true), width: isFocused ? 3 : 2 },
-            opacity: isFocused ? 1 : 0.62,
+            line: { color: cityColor(city, true), width: 2 },
             hovertemplate: "%{y:.1f}<extra></extra>",
         });
     }
@@ -450,16 +442,6 @@ function initTheme() {
     });
 }
 
-function initCityFocus() {
-    document.querySelectorAll("[data-city]").forEach((button) => {
-        button.addEventListener("click", () => {
-            selectedCity = button.dataset.city;
-            document.querySelectorAll("[data-city]").forEach((el) => el.classList.toggle("active", el === button));
-            renderAll();
-        });
-    });
-}
-
 async function loadJson(path) {
     const response = await fetch(path, { cache: "no-store" });
     if (!response.ok) throw new Error(`Failed to load ${path}`);
@@ -468,8 +450,6 @@ async function loadJson(path) {
 
 async function init() {
     initTheme();
-    initCityFocus();
-    document.querySelector(".preset-link").href = PRESET_URL;
 
     try {
         const bundle = await loadJson("data/dashboard.json");

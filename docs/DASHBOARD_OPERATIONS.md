@@ -16,6 +16,8 @@ Airflow executes tasks with `AIRFLOW__CORE__EXECUTE_TASKS_NEW_PYTHON_INTERPRETER
 
 The [frontend deployment](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/runs/37757381763) and [dashboard validation](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/runs/37757381695) succeeded on commit `b0662ed`. The live browser loaded the new export timestamp after a normal reload. Desktop/mobile layout, city/theme controls, all 14 chart containers (12 with visible marks and two legitimately empty accuracy sparklines), and console checks passed. The README product preview was captured from this verified live page.
 
+The top city-focus and Preset buttons were removed at the owner's request. Both cities appear with equal emphasis in the comparison charts; the Theme button remains available.
+
 ## Two mutually exclusive publication routes
 
 Keep GitHub Pages set to **GitHub Actions**. Restrict the `github-pages` environment to `main`. Both publishers use `weather-dashboard-pages` concurrency with cancellation disabled.

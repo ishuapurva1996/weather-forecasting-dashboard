@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/dashboard.css?v=20261008.2">
 </head>
 <body>
     <header class="dashboard-header">
@@ -18,17 +18,12 @@
             <p class="subtitle">San Jose and Los Angeles actuals, Snowflake ML forecasts, forecast revisions, conditions, and rolling trends.</p>
         </div>
         <div class="header-actions">
-            <a class="preset-link" href="https://9106dc82.us2a.app.preset.io/superset/dashboard/8/?native_filters_key=dBFp1-5AII8" target="_blank" rel="noreferrer">Preset</a>
             <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle color theme">Theme</button>
         </div>
     </header>
 
     <main class="dashboard-container">
-        <section class="toolbar" aria-label="Dashboard controls">
-            <div class="control-group" role="group" aria-label="City focus">
-                <button class="segmented active" type="button" data-city="Los Angeles">Los Angeles</button>
-                <button class="segmented" type="button" data-city="San Jose">San Jose</button>
-            </div>
+        <section class="toolbar" aria-label="Data refresh status">
             <div class="refresh-stamp" id="refresh-stamp">Loading data...</div>
         </section>
 
@@ -150,6 +145,6 @@
     </footer>
 
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
-    <script src="js/dashboard.js?v=20261008"></script>
+    <script src="js/dashboard.js?v=20261008.2"></script>
 </body>
 </html>
