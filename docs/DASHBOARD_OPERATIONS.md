@@ -4,9 +4,15 @@ The public weather dashboard uses the approved static frontend in `web_dashboard
 
 ## Current state
 
-Snapshot publication uses the existing real August 3, 2026 export, with actual weather through August 2. Capture and warehouse completion timestamps were not recorded in that export and remain `null`; reassembly does not change its original export date. The browser shows a stale-data warning.
+On October 8, 2026, the owner authorized moving weather into the active Snowflake account. Weather Airflow now uses `WEATHER_FORECASTING.ANALYTICS` there. Its connection is separate from movie Airflow's connection; a before/after fingerprint verified that the movie connection was unchanged. Only the weather database and schemas were created.
 
-A new complete ingestion was attempted on October 7, 2026. Open-Meteo extraction succeeded, but the Snowflake load failed because the weather account's trial expired and its warehouses were suspended. Scheduled ingestion is paused until the connection is restored. No automatic weather export or deployment has been verified. Contract and failure-path checks passed. The [October 7, 2026 snapshot Pages deployment](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/runs/37707861863) succeeded on commit `70a9559`; deployment and public checksum verification steps both ran. The served JSON matched the selected snapshot, and all 14 charts, city/theme controls, provenance panel, desktop/mobile layout, and repository base path were checked on the live site without console errors. The README preview is a screenshot of this verified public page, stored as a required product asset.
+Fresh ingestion and Snowflake training/prediction succeeded. dbt seed, snapshot, run, and all tests passed, followed by the real `export_dashboard_bundle` task. The private immutable bytes and latest-success pointer were independently checked. The export was created at `2026-10-08T08:37:35.944572Z` from a warehouse build completed at `2026-10-08T08:31:02.876101Z`; source capture began at `2026-10-08T08:24:27.720633Z`. It contains 120 historical weather rows through October 7, 14 forecast rows for October 8–14, matching rolling/category coverage, and 14 initial forecast snapshot rows. The accuracy dataset is legitimately empty because no prediction in the new account yet has a later matching actual day. The old account's forecast revision archive was not reconstructed or fabricated.
+
+The snapshot under `web_dashboard/snapshot/` contains the exact validated private bundle bytes and checksum, with original source/build/export timestamps preserved. Fresh-data desktop/mobile, city/theme, base-path, and empty-accuracy checks passed locally without console errors.
+
+The dispatch task explicitly reports missing `DASHBOARD_GITHUB_TOKEN`. Automatic public refresh remains disabled while this weather-only token and the AWS Pages reader role are pending. No complete automatic publication chain or later scheduled run is claimed successful. The warehouse and validated export are available independently of that missing dispatch configuration.
+
+Airflow initially reused a cached exporter module after a code edit. The weather service was reloaded with `AIRFLOW__CORE__EXECUTE_TASKS_NEW_PYTHON_INTERPRETER=true`; the real export task then succeeded. No upstream warehouse step was rerun during the export correction, and no task was manually marked successful. The receipt parser supports Airflow 2.10's string representation of XCom dictionaries using bounded literal parsing, never executable evaluation.
 
 ## Two mutually exclusive publication routes
 
@@ -34,7 +40,7 @@ The dispatch task submits only after a verified private export. HTTP 204 means q
 
 ## Exact settings
 
-Airflow uses the existing `snowflake_conn`. Configure the following in the checkout's ignored `.env`, then recreate the weather Airflow service so it receives changed values.
+Airflow uses the existing weather `snowflake_conn`, pointing to `WEATHER_FORECASTING.ANALYTICS` in the active account. Set an explicit account, database, warehouse, and role in its extras; the weather dbt runner requires these values even when Snowflake can infer a default role. Configure the following in the checkout's ignored `.env`, then recreate the weather Airflow service so it receives changed values.
 
 | Local setting | Purpose |
 | --- | --- |

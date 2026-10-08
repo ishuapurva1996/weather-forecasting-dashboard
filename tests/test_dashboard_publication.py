@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'web_dashboard'), str(ROOT / 'scripts'), str(ROOT / 'plugins')]
 from validate_data import decode_json, validate_bundle
 from build_dashboard_site import decode_bundle, SiteError, inputs_match
-from weather_publication import check_receipt, publish_bundle, check_eligibility, PREDECESSORS, MUTATORS, ROOT_DAG, FORECAST_DAG, DBT_DAG
+from weather_publication import check_receipt, publish_bundle, check_eligibility, MetadataAPI, PREDECESSORS, MUTATORS, ROOT_DAG, FORECAST_DAG, DBT_DAG
 
 class MissingObject(Exception):
     response = {'Error': {'Code': 'NoSuchKey'}}
@@ -41,8 +41,10 @@ class PublicationTests(unittest.TestCase):
             mutate(changed)
             with self.assertRaises((ValueError, TypeError, KeyError)):
                 validate_bundle(changed)
+        unknown_capture = copy.deepcopy(bundle)
+        unknown_capture["metadata"]["source_captured_at"] = None
         with self.assertRaises(ValueError):
-            validate_bundle(bundle, require_fresh=True)
+            validate_bundle(unknown_capture, require_fresh=True)
 
     def test_eligibility_rejects_fake_success_and_overlapping_mutation(self):
         api = Mock()
@@ -69,6 +71,17 @@ class PublicationTests(unittest.TestCase):
                                   start_date='2026-10-01T00:01:00Z', end_date=None))
         with self.assertRaises(RuntimeError):
             check_eligibility(api, 'dbt')
+
+    def test_airflow_210_receipt_representation_and_json(self):
+        api = MetadataAPI(base='http://localhost:8080', auth=('test', 'test'))
+        receipt = {'dag_id': 'weather_dbt_pipeline', 'try_number': 2}
+        for value in (repr(receipt), json.dumps(receipt), receipt):
+            api.get = Mock(return_value={'value': value})
+            self.assertEqual(api.receipt('weather_dbt_pipeline', 'run', 'dbt_seed'), receipt)
+        for value in ("__import__('os').getcwd()", '[]', 'x' * 8193):
+            api.get = Mock(return_value={'value': value})
+            with self.assertRaises((ValueError, RuntimeError)):
+                api.receipt('weather_dbt_pipeline', 'run', 'dbt_seed')
 
     def test_invalid_checksum_stops_before_parsing(self):
         with self.assertRaises(SiteError):

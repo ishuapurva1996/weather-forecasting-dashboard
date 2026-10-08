@@ -6,9 +6,9 @@ An end-to-end data engineering pipeline that ingests real weather data for San J
 
 **Live Dashboard:** [ishuapurva1996.github.io/weather-forecasting-dashboard](https://ishuapurva1996.github.io/weather-forecasting-dashboard/)
 
-The [October 7, 2026 snapshot deployment](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/runs/37707861863) succeeded, and its public JSON checksum, all 14 charts, city/theme controls, and desktop/mobile layout were verified.
+The weather pipeline now uses the active Snowflake account with its own `WEATHER_FORECASTING` database. Fresh ingestion, seven-day forecasting, all dbt commands/tests, and the validated private S3 export succeeded on **October 8, 2026**. The current export contains actual weather through **October 7**, with forecasts for **October 8–14**.
 
-The latest available real export is from **August 3, 2026**, with actual weather through **August 2**. The weather Snowflake account is currently suspended after its trial expired, so automatic refresh is pending restoration of that connection and the private publication settings. The page preserves those dates and shows a stale-data warning. See [dashboard operations](docs/DASHBOARD_OPERATIONS.md).
+Automatic public refresh remains pending the weather-only GitHub dispatch token and AWS Pages reader role. The reviewed snapshot publisher can deploy this exact validated export without those credentials. Forecast accuracy is initially unavailable until a prior forecast has a matching actual day; new forecast revision history begins with this build. See [dashboard operations](docs/DASHBOARD_OPERATIONS.md).
 
 The pipeline ingests 60 days of historical daily weather, produces a 7-day forecast with a 95% prediction interval, transforms the result into analytics-grade marts (with dbt tests and an SCD-2 snapshot), and surfaces the output on Preset plus a public static Plotly dashboard.
 
@@ -28,7 +28,7 @@ Three chained Airflow DAGs plus a dbt project:
 
 1. **`WeatherData_multiple_cities_data` (ETL DAG)** — extracts past 60 days of daily weather for San Jose and Los Angeles from Open-Meteo, transforms the JSON response into typed records, and loads `RAW.WEATHER_ETL_MULTIPLE_CITIES` inside a Snowflake transaction (BEGIN / DELETE / INSERT / COMMIT, ROLLBACK on error). Triggers DAG 2 on success.
 2. **`forecast_model_temp_max` (ML DAG)** — creates a view over the raw table, trains `SNOWFLAKE.ML.FORECAST` per city series, and writes 7-day predictions with 95% PI to `ANALYTICS.WEATHER_FORECAST_LAB1`. Triggers DAG 3 on success.
-3. **`weather_dbt_pipeline` (dbt DAG)** — runs `dbt seed`, `dbt snapshot`, `dbt run`, and `dbt test` sequentially via `BashOperator`, materializing the seed, staging models, marts, and snapshot tables in `ANALYTICS`. After tests pass, it validates and uploads a private immutable weather export, then dispatches the GitHub Actions Pages workflow.
+3. **`weather_dbt_pipeline` (dbt DAG)** — runs `dbt seed`, `dbt snapshot`, `dbt run`, and `dbt test` sequentially as checked subprocesses through `PythonOperator`, materializing the seed, staging models, marts, and snapshot tables in `ANALYTICS`. After tests pass, it validates and uploads a private immutable weather export, then dispatches the GitHub Actions Pages workflow.
 
 DAG chaining uses `TriggerDagRunOperator` with `wait_for_completion=True` and `max_active_runs=1`. Parent runs wait for the complete downstream pipeline, reducing overlapping scheduled writes. Explicit run lineage and success receipts bind dashboard publication to the real attempts that produced the warehouse data.
 
@@ -185,7 +185,7 @@ Open-Meteo → Airflow ingestion → Snowflake ML forecast
 → weather-only GitHub dispatch → Pages artifact → public checksum verification
 ```
 
-A failed or stale export never falls back to sample data. Missing publication configuration fails the dependent task explicitly. Follow [dashboard operations](docs/DASHBOARD_OPERATIONS.md) for exact settings, credential rotation, and recovery. The initial automatic weather run remains unverified because the Snowflake account is suspended.
+A failed or stale export never falls back to sample data. Missing publication configuration fails the dependent task explicitly. Follow [dashboard operations](docs/DASHBOARD_OPERATIONS.md) for exact settings, credential rotation, and recovery. The active-account warehouse build and private export are verified. Automatic GitHub dispatch and the S3 reader deployment remain unverified until their weather-only credentials and role are configured.
 
 ## Authors
 

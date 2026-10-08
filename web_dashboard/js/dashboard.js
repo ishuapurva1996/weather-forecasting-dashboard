@@ -243,6 +243,7 @@ function renderSparkline(id, rows, xKey, yKey, color) {
 }
 
 function renderKpis() {
+    document.getElementById("accuracy-note").hidden = (DATA.accuracy || []).length > 0;
     const laForecastRows = forecastRows("Los Angeles");
     const sjForecastRows = forecastRows("San Jose");
     const laAccuracyRows = accuracyRows("Los Angeles");

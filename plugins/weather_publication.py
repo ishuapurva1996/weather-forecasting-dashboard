@@ -1,4 +1,5 @@
 """Success-only weather pipeline evidence and immutable private export handoff."""
+import ast
 import hashlib
 import json
 import os
@@ -58,10 +59,14 @@ def run_dbt(command):
     connection = SnowflakeHook(snowflake_conn_id='snowflake_conn').get_connection('snowflake_conn')
     extra = connection.extra_dejson
     env = os.environ.copy()
-    env.update(DBT_USER=connection.login, DBT_PASSWORD=connection.password,
+    dbt_env = dict(DBT_USER=connection.login, DBT_PASSWORD=connection.password,
                DBT_ACCOUNT=extra['account'], DBT_SCHEMA=connection.schema or 'ANALYTICS',
                DBT_ROLE=extra['role'], DBT_DATABASE=extra['database'],
                DBT_WAREHOUSE=extra['warehouse'], DBT_TYPE='snowflake')
+    missing = [name for name, value in dbt_env.items() if not isinstance(value, str) or not value]
+    if missing:
+        raise RuntimeError('Weather Snowflake connection needs explicit dbt settings: ' + ', '.join(missing))
+    env.update(dbt_env)
     started = now()
     subprocess.run(['/opt/dbt_venv/bin/dbt', command, '--project-dir', '/opt/airflow/dbt',
                     '--profiles-dir', '/opt/airflow/dbt'], env=env, check=True, timeout=600)
@@ -94,7 +99,18 @@ class MetadataAPI:
 
     def receipt(self, dag, run, task):
         result = self.get(f'/dags/{dag}/dagRuns/{quote(run, safe="")}/taskInstances/{task}/xcomEntries/return_value')['value']
-        return json.loads(result) if isinstance(result, str) else result
+        if isinstance(result, str):
+            if len(result) > 8192:
+                raise RuntimeError('Success receipt exceeds its evidence size limit.')
+            try:
+                result = json.loads(result)
+            except json.JSONDecodeError:
+                # Airflow 2.10's API String field emits Python dictionary repr.
+                # Parse literals only; this never evaluates executable code.
+                result = ast.literal_eval(result)
+        if not isinstance(result, dict):
+            raise RuntimeError('Success receipt must contain task-attempt evidence.')
+        return result
 
 
 def check_receipt(receipt, task):
