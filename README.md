@@ -8,9 +8,9 @@ An end-to-end data engineering pipeline that ingests real weather data for San J
 
 The weather pipeline now uses the active Snowflake account with its own `WEATHER_FORECASTING` database. Fresh ingestion, seven-day forecasting, all dbt commands/tests, and the validated private S3 export succeeded on **October 8, 2026**. The current export contains actual weather through **October 7**, with forecasts for **October 8–14**.
 
-The [October 8, 2026 Pages deployment](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/runs/37751415667) succeeded, and the public JSON exactly matches that private export. Charts, current-data labels, controls, mobile layout, and the initial accuracy state were verified.
+The [October 8, 2026 automatic refresh verification](https://github.com/ishuapurva1996/weather-forecasting-dashboard/actions/runs/37756912742) completed the full chain: fresh weather ingestion, Snowflake training/prediction, dbt build/tests, private export, Airflow dispatch, and GitHub Pages deployment. All three Airflow runs succeeded, and the canonical public JSON exactly matches the validated export.
 
-Automatic public refresh remains pending the weather-only GitHub dispatch token and AWS Pages reader role. The reviewed snapshot publisher can deploy this exact validated export without those credentials. Forecast accuracy is initially unavailable until a prior forecast has a matching actual day; new forecast revision history begins with this build. See [dashboard operations](docs/DASHBOARD_OPERATIONS.md).
+Automatic refresh is enabled daily at **12:20 PM PDT / 11:20 AM PST** (19:20 UTC). Keep the computer and Docker running so the local Airflow scheduler can execute it. The complete chain was verified with a manually triggered run; a later scheduled occurrence has not yet been observed. Forecast accuracy remains unavailable until a prior forecast has a matching actual day. See [dashboard operations](docs/DASHBOARD_OPERATIONS.md).
 
 The pipeline ingests 60 days of historical daily weather, produces a 7-day forecast with a 95% prediction interval, transforms the result into analytics-grade marts (with dbt tests and an SCD-2 snapshot), and surfaces the output on Preset plus a public static Plotly dashboard.
 
